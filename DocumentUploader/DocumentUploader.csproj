@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <UserSecretsId>071a5bcf-ce12-4976-8853-7f06c9859da0</UserSecretsId>
+
+    <!-- DEMO: Enable documentation file so API has user defined documentation via XML comments -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- Disable warning: Missing XML comment for publicly visible type or member 'Type_or_Member -->
+    <NoWarn>$(NoWarn);1591</NoWarn>
+  
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Repositories\**" />
+    <Content Remove="Repositories\**" />
+    <EmbeddedResource Remove="Repositories\**" />
+    <None Remove="Repositories\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="DataTransferObjects\QueueImageProcessMessage.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StorageLibrary\StorageLibrary.csproj" />
+  </ItemGroup>
+
+</Project>
