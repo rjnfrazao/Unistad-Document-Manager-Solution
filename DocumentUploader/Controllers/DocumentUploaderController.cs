@@ -103,19 +103,21 @@ namespace DocumentUploader.Controllers
             {
 
                 // Log create process started.
-                _logger.LogInformation(LoggingEvents.InsertItem, $"POST : Starting upload image. ConversionMode : {imageConversionMode}");
-
+                _logger.LogInformation(LoggingEvents.InsertItem, $"POST : Starting upload document.");
 
                 // Initialize variables.
-                var containerName = ConfigSettings.UPLOADED_CONTAINERNAME;
+                //var containerName = ConfigSettings.UPLOADED_CONTAINERNAME;
                 fileName = fileData.FileName;
                 directory = ConfigSettings.FILE_SHARE_UPLOADED_FOLDER;
 
-                 // "fileData" Parameter is required 
-                /*if (imageConversionMode is null)
+                // "fileData" Parameter is required 
+                if (fileName is null)
                 {
-                    throw new ParameterIsRequired("fileData");
-                }*/
+                    throw new ParameterIsRequired("fileName");
+                }
+
+                // Log create process started.
+                _logger.LogInformation(LoggingEvents.InsertItem, $"POST : Uploading file. {fileName}");
 
 
                 // * REVIEW IF NEEDED or NOT -> Validate the container name, file name, and file data.
@@ -136,37 +138,37 @@ namespace DocumentUploader.Controllers
 
 
                 // * REVIEW IF NEEDED or NOT -> Clean the container name to avoid unecessary error exceptions, such as caused by capital letter.
-                containerName = _storage.CleanContainerName(containerName);
+                // containerName = _storage.CleanContainerName(containerName);
 
                 // Save to the uploaded directory
                 using Stream fileStream = fileData.OpenReadStream();
                 if (await _fileShare.SaveFileUploaded(directory, fileName, fileStream))
                 {
-                        // string imageSource = uri.ToString();
+                    // string imageSource = uri.ToString();
                     // Log file was created
                     _logger.LogInformation(LoggingEvents.InsertItem, $"POST : File was stored successfuly.");
 
                     var jobId = Guid.NewGuid().ToString(); 
 
                     // Add to the Queue.
-                    var message = new QueueJobMessage(containerName, jobId, fileName);
+                    var message = new QueueJobMessage(ConfigSettings.TABLE_PATITION_KEY, jobId, fileName);
                     await _queue.AddQueueMessage(message, null);
 
                     // (#) Instatiate TableProcessor but inject JobTable object.
-                    var tableProcessor = new TableProcessor(new JobTable(_logger, _configuration, conversionMode.ToString()));
+                    var tableProcessor = new TableProcessor(new JobTable(_logger, _configuration, ConfigSettings.TABLE_PATITION_KEY));
 
                     // Create record job status with status Queued.
-                    await tableProcessor.CreateJobTableWithStatus(_logger, fileName, conversionMode.ToString(), imageSource);
+                    await tableProcessor.CreateJobTableWithStatus(_logger, jobId, fileName);
 
                     // Created successfuly. Returns created status with the location of the blob uploaded
                     //return CreatedAtRoute(uri.ToString(), new { containerName=containerName, fileName = fileName });
-                    return CreatedAtRoute(_retrieveJobById, new { imageConversionMode = conversionMode, id = fileName }, null);
+                    return CreatedAtRoute(_retrieveJobById, new { id = fileName }, null);
                     //return Created(imageSource, null);
 
                 }
                 else
                 {
-                    throw new InvalidDataInput($"POST: File failed to be created in the storage. HttpStatusReturned : {statusCode} and file location URI : {uri}");
+                    throw new InvalidDataInput($"POST: File failed to be created in the File Share. File name : {fileName}");
                 }
 
 
@@ -177,12 +179,12 @@ namespace DocumentUploader.Controllers
                 when (ex.ErrorCode == "InvalidResourceName")
             {
                 // Just in case any invalid resource name was't checked previously. Such as starting with symbols or others situations.
-                _logger.LogError(LoggingEvents.InsertItem, ex, $"POST : Invalid Resource Name. File : {fileName} or Container : {containerName}.");
+                _logger.LogError(LoggingEvents.InsertItem, ex, $"POST : Invalid Resource Name. File : {fileName}");
 
                 // Data parameters to be passed to the exception middleware.
                 ex.Data["errorNumber"] = (int)ApiErrorCode.InvalidContainerName;
-                ex.Data["paramName"] = "containerName";
-                ex.Data["paramValue"] = containerName;
+                ex.Data["paramName"] = "fileName";
+                ex.Data["paramValue"] = fileName;
 
                 // rethrow to the middleware.
                 throw;
@@ -231,7 +233,7 @@ namespace DocumentUploader.Controllers
 
         }
 
-
+/*
         /// <summary>
         /// Gets the specified file based on the name (GUID).
         /// </summary>
@@ -246,7 +248,7 @@ namespace DocumentUploader.Controllers
 
         [ProducesResponseType(typeof(Stream), (int)HttpStatusCode.OK)] //200
         [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]   //404
-        [HttpGet("uploadedimages/{id}")]
+        [HttpGet("document/{id}")]
         public async Task<ActionResult> Get(string id)
         {
             string containerName = "";
@@ -256,7 +258,7 @@ namespace DocumentUploader.Controllers
             {
 
                 // Initialize variables.
-                containerName = ApiSettings.UPLOADED_CONTAINERNAME;
+                containerName = ConfigSettings.UPLOADED_CONTAINERNAME;
                 fileName = id;
 
                 // Log Get starts
@@ -505,5 +507,6 @@ namespace DocumentUploader.Controllers
             }
 
         }
+*/
     }
 }

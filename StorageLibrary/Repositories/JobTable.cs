@@ -20,7 +20,12 @@ namespace StorageLibrary.Repositories
 
         private ILogger _log;
 
-
+        /// <summary>
+        /// Classes responsible for all operations of read, add, and updated records to the storage table.
+        /// </summary>
+        /// <param name="log"></param>
+        /// <param name="configuration"></param>
+        /// <param name="partitionKey"></param>
         public JobTable(ILogger log, IConfiguration configuration, string partitionKey)
         {
 
@@ -97,6 +102,7 @@ namespace StorageLibrary.Repositories
             return returnList[0];
         }
 
+
         /// <summary>
         /// Retrieve the list of Job the job entity based on the filter handler
         /// </summary>
@@ -149,6 +155,7 @@ namespace StorageLibrary.Repositories
 
             return entityList;
         }
+
 
         /// <summary>
         /// Updates the job entity.
@@ -209,13 +216,14 @@ namespace StorageLibrary.Repositories
             }
         }
 
+
         /// <summary>
         /// Inserts the or replace job entity.
         /// </summary>
         /// <param name="jobId">The job identifier.</param>
         /// <param name="status">The status.</param>
-        /// <param name="imageSource">Image Source.</param>
-        public async Task InsertOrReplaceJobEntity(string jobId, int status, string imageSource)
+        /// <param name="fileSource">File Source.</param>
+        public async Task InsertOrReplaceJobEntity(string jobId, int status, string fileSource)
         {
 
             // Get the desciptive message
@@ -226,7 +234,7 @@ namespace StorageLibrary.Repositories
             jobEntityToInsertOrReplace.PartitionKey = _partitionKey;        // Partition key defined when object is instatiated.
             jobEntityToInsertOrReplace.status = status;
             jobEntityToInsertOrReplace.statusDescription = message;
-            jobEntityToInsertOrReplace.fileSource = imageSource;
+            jobEntityToInsertOrReplace.fileSource = fileSource;
 
 
             TableOperation insertReplaceOperation = TableOperation.InsertOrReplace(jobEntityToInsertOrReplace);

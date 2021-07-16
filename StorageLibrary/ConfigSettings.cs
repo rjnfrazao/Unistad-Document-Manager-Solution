@@ -54,9 +54,8 @@ namespace StorageLibrary
 
 
 
-
-        // Section in appsetting, where the application configuration is stored.
-        // * REMOVE? public const string APP_SETTINGS_SECTION = "ApplicationSettings";
+        // Section in appsettings where the application configuration is stored.
+        public const string APP_SETTINGS_SECTION = "ApplicationSettings";
 
 
 

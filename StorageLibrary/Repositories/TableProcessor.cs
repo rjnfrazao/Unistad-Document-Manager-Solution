@@ -59,19 +59,19 @@ namespace StorageLibrary.Repositories
 
 
         /// <summary>
-        /// Retrieve Job Entity by name and filter applied.
+        /// Retrieve Job Entity by Id.
         /// </summary>
         /// <param name="log">The log.</param>
-        /// <param name="name">File name.</param>
+        /// <param name="name">Document name.</param>
         public async Task<JobEntity> RetrieveJobEntityByName(ILogger log, string name)
         {
-            log.LogInformation($"[+] Retrieving JobStatus Record By Name, based on filter at File Name {name}");
+            log.LogInformation($"[+] Retrieving JobStatus Record By Name {name}");
 
             // Initiate the JobTable
             // JobTable jobTable = new JobTable(log, ConfigSettings.IMAGEJOBS_PARTITIONKEY);
 
             // Update record into the table.
-            return await _jobTable.RetrieveJobEntityByName(name);
+            return await _jobTable.RetrieveJobEntity(name);
 
         }
 
