@@ -3,11 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31205.134
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unistad Document Manager", "Unistad Document Manager\Unistad Document Manager.csproj", "{2ABF586F-5B43-475F-B320-41F9ED8B0BA4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unistad Document Manager", "Unistad Document Manager\Unistad Document Manager.csproj", "{2ABF586F-5B43-475F-B320-41F9ED8B0BA4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocumentUploader", "DocumentUploader\DocumentUploader.csproj", "{32BEA660-617D-4D55-8F44-DAE55B748081}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocumentUploader", "DocumentUploader\DocumentUploader.csproj", "{32BEA660-617D-4D55-8F44-DAE55B748081}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StorageLibrary", "StorageLibrary\StorageLibrary.csproj", "{84E29B11-2D55-4F94-911C-205667A14BC5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StorageLibrary", "StorageLibrary\StorageLibrary.csproj", "{84E29B11-2D55-4F94-911C-205667A14BC5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocumentConsumer", "DocumentConsumer\DocumentConsumer.csproj", "{C5624D84-1462-4F80-A0F5-2ECBE1764C1C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnistadDocumentLibrary", "UnistadDocumentLibrary\UnistadDocumentLibrary.csproj", "{219C3C00-2F4F-494C-A7C0-D36CFF9944F8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationLibrary", "ConfigurationLibrary\ConfigurationLibrary.csproj", "{8C1A8E4F-5FF9-4D82-86E2-2AD066E9CD4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +33,18 @@ Global
 		{84E29B11-2D55-4F94-911C-205667A14BC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{84E29B11-2D55-4F94-911C-205667A14BC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{84E29B11-2D55-4F94-911C-205667A14BC5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5624D84-1462-4F80-A0F5-2ECBE1764C1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5624D84-1462-4F80-A0F5-2ECBE1764C1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5624D84-1462-4F80-A0F5-2ECBE1764C1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5624D84-1462-4F80-A0F5-2ECBE1764C1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{219C3C00-2F4F-494C-A7C0-D36CFF9944F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{219C3C00-2F4F-494C-A7C0-D36CFF9944F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{219C3C00-2F4F-494C-A7C0-D36CFF9944F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{219C3C00-2F4F-494C-A7C0-D36CFF9944F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C1A8E4F-5FF9-4D82-86E2-2AD066E9CD4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C1A8E4F-5FF9-4D82-86E2-2AD066E9CD4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C1A8E4F-5FF9-4D82-86E2-2AD066E9CD4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C1A8E4F-5FF9-4D82-86E2-2AD066E9CD4B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

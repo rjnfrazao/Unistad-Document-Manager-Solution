@@ -1,12 +1,16 @@
 ﻿using Azure.Storage.Files.Shares;
+using Azure.Storage.Files.Shares.Models;
+using ConfigurationLibrary;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
+
 namespace StorageLibrary.Repositories
 {
-    class FileShare : IFileShare
+    public class FileShare : IFileShare
     {
 
         private ShareClient _shareClient;
@@ -23,8 +27,8 @@ namespace StorageLibrary.Repositories
         {
 
             // Storage connection string
-            string storageConnectionString = configuration.GetConnectionString(ConfigSettings.STORAGE_CONNECTIONSTRING_NAME);  //Environment.GetEnvironmentVariable(ConfigSettings.STORAGE_CONNECTIONSTRING_NAME);
-
+            string storageConnectionString = configuration.GetSection(ConfigSettings.STORAGE_CONNECTIONSTRING_NAME).Value;  
+            //string storageConnectionString = Environment.GetEnvironmentVariable(ConfigSettings.STORAGE_CONNECTIONSTRING_NAME);
 
             // Create the File Share client.
             _shareClient = new ShareClient(storageConnectionString, ConfigSettings.FILE_SHARE_NAME);
@@ -170,6 +174,57 @@ namespace StorageLibrary.Repositories
             }
 
         }
+
+
+
+        /// <summary>
+        /// Get the file
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        public async Task<Stream> GetFile(string directory, string fileName)
+        {
+
+            if (directory.Substring(0,3) == "c:\\")
+            {
+                Stream fs = File.OpenRead($"{directory}\\{fileName}");
+                return fs;
+            }
+
+            // Get a reference to the directory
+            ShareDirectoryClient directoryClient = _shareClient.GetDirectoryClient(directory);
+
+            // Check the client exists
+            if (directoryClient != null)
+            {
+                // Get a reference to the file object
+                ShareFileClient fileClient = directoryClient.GetFileClient(fileName);
+
+
+                // Ensure that the file exists
+                if (await fileClient.ExistsAsync())
+                {
+                    // Download the file
+                    ShareFileDownloadInfo download = await fileClient.DownloadAsync();
+
+                    return download.Content;
+
+                    /* Save the data to a local file, overwrite if the file already exists
+                    using (Stream stream = null)
+                    {
+                        await download.Content.CopyToAsync(stream);
+                        //await stream.FlushAsync();
+                        return stream;
+                    }
+                    */
+                }
+            }
+
+            return null;
+
+        }
+
 
     }
 

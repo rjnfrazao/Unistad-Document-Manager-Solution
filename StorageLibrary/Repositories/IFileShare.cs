@@ -14,5 +14,8 @@ namespace StorageLibrary.Repositories
 
         Task<bool> SaveFileUploaded(string directory, string file, Stream fileStream);
 
+        Task<Stream> GetFile(string directory, string fileName);
+
+        Task DeleteFile(string directory, string fileName)
     }
 }

@@ -1,14 +1,14 @@
 ﻿using Microsoft.Extensions.Logging;
-//using Azure.Storage.Blobs;
-//using Microsoft.WindowsAzure.Storage.Table;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.Documents;
 using System;
 using System.Threading.Tasks;
 using StorageLibrary.Models;
-using StorageLibrary.Library;
+using ConfigurationLibrary;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
+using ConfigurationLibrary;
+using StorageLibrary.Library;
 
 namespace StorageLibrary.Repositories
 {

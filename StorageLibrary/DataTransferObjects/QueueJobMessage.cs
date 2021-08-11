@@ -26,7 +26,7 @@ namespace StorageLibrary.DataTransferObjects
 
 
         /// <summary>
-        /// Name of the file upoaded to be processed.
+        /// Name of the file uploaded to be processed.
         /// </summary>
         /// <value>Original fila name uploaded.</value>
         public string fileName { get; set; }

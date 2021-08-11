@@ -1,0 +1,351 @@
+﻿   "StadiumMapping": "[{\"name\": \"Hub\",
+        \"code\": \"HB\"
+      },
+      {
+        \"name\": \"Ras Abu Aboud\",
+        \"code\": \"RAA\"
+      },
+      {
+        \"name\": \"Abu Aboud\",
+        \"code\": \"RAA\"
+      },
+      {
+        \"name\": \"Al Thumama\",
+        \"code\": \"TH\"
+      },
+      {
+        \"name\": \"Thumama\",
+        \"code\": \"TH\"
+      },
+      {
+        \"name\": \"Education City\",
+        \"code\": \"EC\"
+      },
+      {
+        \"name\": \"Al-Rayyan\",
+        \"code\": \"RN\"
+      },
+      {
+        \"name\": \"Rayyan Stadium\",
+        \"code\": \"RN\"
+      },
+      {
+        \"name\": \"Lusail\",
+        \"code\": \"LS\"
+      },
+      {
+        \"name\": \"Al-Bayt\",
+        \"code\": \"BT\"
+      },
+      {
+        \"name\": \"Al Bayt\",
+        \"code\": \"BT\"
+      },
+      {
+        \"name\": \"Al Janoub\",
+        \"code\": \"JB\"
+      },
+      {
+        \"name\": \"Al-Janoub\",
+        \"code\": \"JB\"
+      },
+      {
+        \"name\": \"Khalifa\",
+        \"code\": \"KH\"
+      }
+    ]",
+    "ServiceMapping": "[
+      {
+        \"name\": \"IPTV\",
+        \"code\": \"IPTV\"
+      },
+      {
+        \"name\": \"Integrated Building\",
+        \"code\": \"IBMS\"
+      },
+      {
+        \"name\": \"Digital Signage\",
+        \"code\": \"DS\"
+      },
+      {
+        \"name\": \"Video Surveillance\",
+        \"code\": \"CCTV\"
+      },
+      {
+        \"name\": \"Building Access Control Services\",
+        \"code\": \"ACS\"
+      },
+      {
+        \"name\": \"Public Address\",
+        \"code\": \"PAVA\"
+      },
+      {
+        \"name\": \"Pro Sound\",
+        \"code\": \"PS\"
+      },
+      {
+        \"name\": \"Integrated Display\",
+        \"code\": \"ID\"
+      },
+      {
+        \"name\": \"Scoreboard\",
+        \"code\": \"SB\"
+      },
+      {
+        \"name\": \"National Command Center\",
+        \"code\": \"NCC\"
+      },
+      {
+        \"name\": \"Special Needs Service\",
+        \"code\": \"SNS\"
+      },
+      {
+        \"name\": \"Ticket Enablement Service\",
+        \"code\": \"TES\"
+      },
+      {
+        \"name\": \"Mass Access\",
+        \"code\": \"MAS\"
+      },
+      {
+        \"name\": \"IDAM\",
+        \"code\": \"IDAM\"
+      }]",
+    "DocumentTypeMapping": "[
+      {
+        \"name\": \"Business Requirement\",
+        \"code\": \"BRS\"
+      },
+      {
+        \"name\": \"Solution Architecture\",
+        \"code\": \"SAD\"
+      },
+      {
+        \"name\": \"High Level\",
+        \"code\": \"HLFD\"
+      },
+      {
+        \"name\": \"Interface Asset Service Specification\",
+        \"code\": \"IASS\"
+      },
+      {
+        \"name\": \"Interface Asset Consumer Specification\",
+        \"code\": \"IACS\"
+      },
+      {
+        \"name\": \"Training plan\",
+        \"code\": \"TRP\"
+      },
+      {
+        \"name\": \"Test Plan\",
+        \"code\": \"TP\"
+      },
+      {
+        \"name\": \"Detailed Technical Design\",
+        \"code\": \"DTD\"
+      },
+      {
+        \"name\": \"Service Level Requirements\",
+        \"code\": \"SLR\"
+      },
+      {
+        \"name\": \"Training Report\",
+        \"code\": \"TRR\"
+      },
+      {
+        \"name\": \"Test Summary Report\",
+        \"code\": \"TSR\"
+      },
+      {
+        \"name\": \"User Acceptance\",
+        \"code\": \"UAT\"
+      }
+    ]"
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   "StadiumMapping": [
+      {
+        "name": "Hub",
+        "code": "HB"
+      },
+      {
+        "name": "Ras Abu Aboud",
+        "code": "RAA"
+      },
+      {
+        "name": "Abu Aboud",
+        "code": "RAA"
+      },
+      {
+        "name": "Al Thumama",
+        "code": "TH"
+      },
+      {
+        "name": "Thumama",
+        "code": "TH"
+      },
+      {
+        "name": "Education City",
+        "code": "EC"
+      },
+      {
+        "name": "Al-Rayyan",
+        "code": "RN"
+      },
+      {
+        "name": "Rayyan Stadium",
+        "code": "RN"
+      },
+      {
+        "name": "Lusail",
+        "code": "LS"
+      },
+      {
+        "name": "Al-Bayt",
+        "code": "BT"
+      },
+      {
+        "name": "Al Bayt",
+        "code": "BT"
+      },
+      {
+        "name": "Al Janoub",
+        "code": "JB"
+      },
+      {
+        "name": "Al-Janoub",
+        "code": "JB"
+      },
+      {
+        "name": "Khalifa",
+        "code": "KH"
+      }
+    ],
+    "ServiceMapping": [
+      {
+        "name": "IPTV",
+        "code": "IPTV"
+      },
+      {
+        "name": "Integrated Building",
+        "code": "IBMS"
+      },
+      {
+        "name": "Digital Signage",
+        "code": "DS"
+      },
+      {
+        "name": "Video Surveillance",
+        "code": "CCTV"
+      },
+      {
+        "name": "Building Access Control Services",
+        "code": "ACS"
+      },
+      {
+        "name": "Public Address",
+        "code": "PAVA"
+      },
+      {
+        "name": "Pro Sound",
+        "code": "PS"
+      },
+      {
+        "name": "Integrated Display",
+        "code": "ID"
+      },
+      {
+        "name": "Scoreboard",
+        "code": "SB"
+      },
+      {
+        "name": "National Command Center",
+        "code": "NCC"
+      },
+      {
+        "name": "Special Needs Service",
+        "code": "SNS"
+      },
+      {
+        "name": "Ticket Enablement Service",
+        "code": "TES"
+      },
+      {
+        "name": "Mass Access",
+        "code": "MAS"
+      },
+      {
+        "name": "IDAM",
+        "code": "IDAM"
+      }
+
+
+    ],
+    "DocumentTypeMapping": [
+      {
+        "name": "Business Requirement",
+        "code": "BRS"
+      },
+      {
+        "name": "Solution Architecture",
+        "code": "SAD"
+      },
+      {
+        "name": "High Level",
+        "code": "HLFD"
+      },
+      {
+        "name": "Interface Asset Service Specification",
+        "code": "IASS"
+      },
+      {
+        "name": "Interface Asset Consumer Specification",
+        "code": "IACS"
+      },
+      {
+        "name": "Training plan",
+        "code": "TRP"
+      },
+      {
+        "name": "Test Plan",
+        "code": "TP"
+      },
+      {
+        "name": "Detailed Technical Design",
+        "code": "DTD"
+      },
+      {
+        "name": "Service Level Requirements",
+        "code": "SLR"
+      },
+      {
+        "name": "Training Report",
+        "code": "TRR"
+      },
+      {
+        "name": "Test Summary Report",
+        "code": "TSR"
+      },
+      {
+        "name": "User Acceptance",
+        "code": "UAT"
+      }
+    ]

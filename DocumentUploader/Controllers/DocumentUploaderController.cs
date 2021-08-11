@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using DocumentUploader.Exceptions;
 using DocumentUploader.DataTransferObjects;
 using StorageLibrary;
+using ConfigurationLibrary;
 
 namespace DocumentUploader.Controllers
 {
