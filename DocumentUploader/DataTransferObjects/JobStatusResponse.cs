@@ -12,7 +12,7 @@ namespace DocumentUploader.DataTransferObjects
         {
             //RowKey = entity.RowKey;
             jobId = entity.RowKey;
-            imageConversionMode = entity.PartitionKey;
+            partition = entity.PartitionKey;
             status = entity.status;
             statusDescription = entity.statusDescription;
             imageSource = entity.fileSource;
@@ -23,7 +23,7 @@ namespace DocumentUploader.DataTransferObjects
 
         public string jobId { get; set; }
 
-        public string imageConversionMode { get; set; }
+        public string partition { get; set; }
 
         public int status { get; set; }
 

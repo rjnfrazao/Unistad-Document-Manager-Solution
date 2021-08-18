@@ -65,6 +65,7 @@ namespace DocumentUploader.Controllers
         /// </summary>
         /// <param name="storage">Storage interface.</param>
         /// <param name="queue">Queue interface.</param>
+        /// <param name="fileShare">File share interface.</param>
         /// <param name="logger">Log object used to log messages.</param>
         /// <param name="configuration">Configuration object with the application settings.</param>
         public DocumentUploaderController(IStorage storage,
@@ -93,7 +94,7 @@ namespace DocumentUploader.Controllers
         [ProducesResponseType(typeof(void), (int)HttpStatusCode.Created)]               //201
         [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]   //400
         [HttpPost]
-        [Route("uploadedimages")]
+        [Route("upload")]
         public async Task<IActionResult> Create(IFormFile fileData)
         {
             string directory = "";
@@ -107,9 +108,24 @@ namespace DocumentUploader.Controllers
                 _logger.LogInformation(LoggingEvents.InsertItem, $"POST : Starting upload document.");
 
                 // Initialize variables.
-                //var containerName = ConfigSettings.UPLOADED_CONTAINERNAME;
+
                 fileName = fileData.FileName;
-                directory = ConfigSettings.FILE_SHARE_UPLOADED_FOLDER;
+
+                // There are no FileShare in Azurite, so in development use File System to store the files.
+                // Correct class is injected. Dependency Inject is constructed in Startup.CongifurationServices
+                if (_configuration.GetValue<bool>($"{ConfigSettings.APP_SETTINGS_SECTION}:UseDevelopmentStorage"))
+                {
+
+                    // Add the root folder location in the file system.
+                    directory = _configuration.GetValue<string>($"{ConfigSettings.APP_SETTINGS_SECTION}:DevelopmentFileSystemRoot") + ConfigSettings.FILE_SHARE_UPLOADED_FOLDER;
+
+                }
+                else
+                {
+
+                    directory = ConfigSettings.FILE_SHARE_UPLOADED_FOLDER;
+                }
+
 
                 // "fileData" Parameter is required 
                 if (fileName is null)
@@ -162,9 +178,8 @@ namespace DocumentUploader.Controllers
                     await tableProcessor.CreateJobTableWithStatus(_logger, jobId, fileName);
 
                     // Created successfuly. Returns created status with the location of the blob uploaded
-                    //return CreatedAtRoute(uri.ToString(), new { containerName=containerName, fileName = fileName });
-                    return CreatedAtRoute(_retrieveJobById, new { id = fileName }, null);
-                    //return Created(imageSource, null);
+                    return CreatedAtRoute(_retrieveJobById, new { id = jobId }, null);
+                    
 
                 }
                 else
@@ -234,235 +249,31 @@ namespace DocumentUploader.Controllers
 
         }
 
-/*
-        /// <summary>
-        /// Gets the specified file based on the name (GUID).
-        /// </summary>
-        /// <param name="id">Name of the file</param>
-        /// <returns>
-        /// Ok - returns the file
-        /// Not Found - returns error reponse message.
-        /// </returns>
-        /// <remarks>
-        /// Demo Notes:
-        /// In case file is not found, returns 404 error.</remarks>
-
-        [ProducesResponseType(typeof(Stream), (int)HttpStatusCode.OK)] //200
-        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]   //404
-        [HttpGet("document/{id}")]
-        public async Task<ActionResult> Get(string id)
-        {
-            string containerName = "";
-            string fileName = "";
-
-            try
-            {
-
-                // Initialize variables.
-                containerName = ConfigSettings.UPLOADED_CONTAINERNAME;
-                fileName = id;
-
-                // Log Get starts
-                _logger.LogInformation(LoggingEvents.GetItem, $"GET : Starting process. File : {id} at Container : {containerName}.");
-
-
-                // Validate data input
-                ObjectResult objectResult = _storage.ValidateData(containerName, fileName);
-                if (objectResult != null) return (BadRequestObjectResult)objectResult;
-
-                // LOG data validation completed.
-                _logger.LogInformation(LoggingEvents.InsertItem, $"GET : All paramenters are valid.");
-
-
-                // Validate container and file existance.
-                objectResult = _storage.ValidateExistance(containerName, fileName);
-                if (objectResult != null) return (NotFoundObjectResult)objectResult;
-
-                // LOG existance validation completed.
-                _logger.LogInformation(LoggingEvents.InsertItem, $"GET : Container and file exist.");
-
-                // validate if the file exists.
-                if (!_storage.FileExist(containerName, fileName))
-                {
-                    // File doesn't exist                
-                    return NotFound(ErrorLibrary.GetErrorResponse(((int)ApiErrorCode.EntityNotFound).ToString(), "fileName", fileName, null));
-                }
-
-                // Returns the file
-                (MemoryStream memoryStream, string contentType) = await _storage.GetFileAsync(containerName, fileName);
-                return File(memoryStream, contentType);
-
-            }
-            catch (Exception ex)
-            {
-                // Log an error.
-                _logger.LogError(LoggingEvents.GetItem, $"GET Blob Unexpected error when returning {fileName} at container {containerName}.");
-
-                // Data parameters to be passed to the handling error middleware.
-                ex.Data["errorNumber"] = (int)ApiErrorCode.InternalError;
-                ex.Data["paramName"] = "Not applicable";
-                ex.Data["paramValue"] = "";
-
-                // rethrow to the middleware.
-                throw;
-
-            }
-
-
-        }
-
 
 
         /// <summary>
-        /// Returns all blobs in the container.
+        /// Retrieve Job by Job Id (GUID).
         /// </summary>
-        /// <returns>Ok - List of files (blobs).
-        ///          BadRequest - Container not found or any other internal error.
-        /// </returns>
-        /// <remarks></remarks>    
-
-        [ProducesResponseType(typeof(BlobNameResponse[]), (int)HttpStatusCode.OK)] //200
-        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]  //400
-        [HttpGet("uploadedimages")]
-
-        public async Task<IActionResult> RetrieveAllBlobs()
-        {
-            string containerName = "";
-
-            try
-            {
-
-                // Initialize variables.
-                containerName = ApiSettings.UPLOADED_CONTAINERNAME;
-
-                // Log retrieve all starts
-                _logger.LogInformation(LoggingEvents.GetItem, $"GET ALL Blobs : Starting process. Container : {containerName}.");
-
-
-                // Validate data input
-                ObjectResult objectResult = _storage.ValidateData(containerName);
-                if (objectResult != null) return (BadRequestObjectResult)objectResult;
-
-                // Validate container existance.
-                objectResult = _storage.ValidateExistance(containerName);
-                if (objectResult != null) return (NotFoundObjectResult)objectResult;
-
-                // LOG existance validation completed.
-                _logger.LogInformation(LoggingEvents.GetItem, $"GET ALL Blobs : Container exist.");
-
-
-                // Retrieve Blobs
-                var returnAllBlobs = new List<BlobNameResponse>();
-                List<string> allBlobs = await _storage.GetListOfBlobs(containerName);
-
-                // Loop Blobs to build the response.
-                foreach (string b in allBlobs)
-                {
-                    //r.name = b;    
-                    returnAllBlobs.Add(new BlobNameResponse { id = b });
-                }
-
-                return new ObjectResult(returnAllBlobs);
-
-            }
-            catch (Exception ex)
-            {
-                // Log an error.
-                _logger.LogError(LoggingEvents.GetItem, $"Get All Blobs : Unexpected error when retrieving Blobs at container {containerName}.");
-
-                // Data parameters to be passed to the handling error middleware.
-                ex.Data["errorNumber"] = (int)ApiErrorCode.InternalError;
-                ex.Data["paramName"] = "Not applicable";
-                ex.Data["paramValue"] = "";
-
-                // rethrow to the middleware.
-                throw;
-            }
-
-
-        }
-
-
-        /// <summary>
-        /// Returns all Jobs in the storage table (imageconversionjobs).
-        /// </summary>
-        /// <returns>Ok - List of files (blobs).
-        ///          BadRequest - Container not found or any other internal error.
-        /// </returns>
-        /// <remarks></remarks>    
-
-        [ProducesResponseType(typeof(JobStatusResponse[]), (int)HttpStatusCode.OK)] //200
-        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]  //400
-        [HttpGet("jobs")]
-
-        public async Task<IActionResult> RetrieveAllJobs()
-        {
-            try
-            {
-                _logger.LogInformation(LoggingEvents.GetItem, $"GET ALL Jobs : Storage table {ApiSettings.TABLE_JOBS_NAME}.");
-
-                // Initiate a list of JobStatusResponse
-                var jobStatusList = new List<JobStatusResponse>();
-                var jobStatus = new JobStatusResponse(new JobEntity());
-
-                // ** REFACTORING is needed -> Notice mode added, but we will return all records.
-                var jobTable = new JobTable(_logger, _configuration, "1");
-
-                foreach (JobEntity entity in await jobTable.RetrieveJobEntityAll())
-                {
-                    jobStatus = new JobStatusResponse(entity);
-
-                    jobStatusList.Add(jobStatus);
-                }
-
-                return new ObjectResult(jobStatusList);
-
-            }
-            catch (Exception ex)
-            {
-                // Log an error.
-                _logger.LogError(LoggingEvents.GetItem, $"Get ALL Jobs : Unexpected error when retrieving job status records. Storage table {ApiSettings.TABLE_JOBS_NAME}.");
-
-                // Data parameters to be passed to the handling error middleware.
-                ex.Data["errorNumber"] = (int)ApiErrorCode.InternalError;
-                ex.Data["paramName"] = "Not applicable";
-                ex.Data["paramValue"] = "";
-
-                // rethrow to the middleware.
-                throw;
-            }
-        }
-
-
-        /// <summary>
-        /// Retrieve Job by imageconversionMode and Job Id (GUID).
-        /// </summary>
-        /// <param name="imageConversionMode">Image conversion mode applied.</param>
-        /// <param name="id">Name (GUID) of the file or id of the file.</param>
-        /// <returns>Ok - Job status response record.
-        ///          Not Found - Entity could not be found.
+        /// <param name="id">GUI of the job. This is generated everytime a document is uploaded.</param>
+        /// <returns>Ok - Job record details stored in the Table Storage
+        ///          Not Found - Job id could not be found.
         /// </returns>
         /// <remarks></remarks>    
 
         [ProducesResponseType(typeof(JobStatusResponse[]), (int)HttpStatusCode.OK)]     //200
         [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]     //404
-        [HttpGet("imageconversionmodes/{imageConversionMode}/jobs/{id}", Name = "RetrieveJobById")]
+        [HttpGet("job/{id}", Name = "RetrieveJobById")]
 
-        public async Task<IActionResult> RetrieveJobById(int imageConversionMode, string id)
+        public async Task<IActionResult> RetrieveJobById(string id)
         {
             try
             {
 
-                _logger.LogInformation(LoggingEvents.GetItem, $"GET a Job : Image conversion mode {imageConversionMode} , Id {id}.");
+                _logger.LogInformation(LoggingEvents.GetItem, $"GET the job {id}.");
 
-                // Validate the image conversion mode.
-                if (imageConversionMode < 1 || imageConversionMode > ApiSettings.CONVERSIONMODE_MAX)
-                {
-                    throw new InvalidDataInput($"POST: Image conversion mode invalid. Mode = {imageConversionMode}.");
-                }
 
                 // ** REFACTORING is needed in case conversion mode is removed from the constructor.
-                var jobTable = new JobTable(_logger, _configuration, imageConversionMode.ToString());
+                var jobTable = new JobTable(_logger, _configuration, ConfigSettings.TABLE_PATITION_KEY);
 
                 // Entity has the data returned from the storage table.
                 // var entity = await table.ExecuteQuerySegmentedAsync(jobStatusQuery, null);
@@ -486,9 +297,9 @@ namespace DocumentUploader.Controllers
 
                 // Data parameters to be passed to the exception middleware.
                 ex.Data["errorNumber"] = (int)ApiErrorCode.InvalidParameter;
-                ex.Data["paramName"] = "imageConversionMode";
-                ex.Data["paramValue"] = imageConversionMode;
-                ex.Data["customizedMsg"] = ApiSettings.CONVERSIONMODE_VALID_MSG; // inform middleware to customize error message. Replace [customizedMsgHere] by this string.
+                ex.Data["paramName"] = "job";
+                ex.Data["paramValue"] = id;
+                ex.Data["customizedMsg"] = ApiSettings.INVALID_DATA_INPUT_MSG; // inform middleware to customize error message. Replace [customizedMsgHere] by this string.
 
                 // rethrow to the middleware.
                 throw;
@@ -508,6 +319,209 @@ namespace DocumentUploader.Controllers
             }
 
         }
-*/
+
+
+        /*
+                /// <summary>
+                /// Gets the specified file based on the name (GUID).
+                /// </summary>
+                /// <param name="id">Name of the file</param>
+                /// <returns>
+                /// Ok - returns the file
+                /// Not Found - returns error reponse message.
+                /// </returns>
+                /// <remarks>
+                /// Demo Notes:
+                /// In case file is not found, returns 404 error.</remarks>
+
+                [ProducesResponseType(typeof(Stream), (int)HttpStatusCode.OK)] //200
+                [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]   //404
+                [HttpGet("document/{id}")]
+                public async Task<ActionResult> Get(string id)
+                {
+                    string containerName = "";
+                    string fileName = "";
+
+                    try
+                    {
+
+                        // Initialize variables.
+                        containerName = ConfigSettings.UPLOADED_CONTAINERNAME;
+                        fileName = id;
+
+                        // Log Get starts
+                        _logger.LogInformation(LoggingEvents.GetItem, $"GET : Starting process. File : {id} at Container : {containerName}.");
+
+
+                        // Validate data input
+                        ObjectResult objectResult = _storage.ValidateData(containerName, fileName);
+                        if (objectResult != null) return (BadRequestObjectResult)objectResult;
+
+                        // LOG data validation completed.
+                        _logger.LogInformation(LoggingEvents.InsertItem, $"GET : All paramenters are valid.");
+
+
+                        // Validate container and file existance.
+                        objectResult = _storage.ValidateExistance(containerName, fileName);
+                        if (objectResult != null) return (NotFoundObjectResult)objectResult;
+
+                        // LOG existance validation completed.
+                        _logger.LogInformation(LoggingEvents.InsertItem, $"GET : Container and file exist.");
+
+                        // validate if the file exists.
+                        if (!_storage.FileExist(containerName, fileName))
+                        {
+                            // File doesn't exist                
+                            return NotFound(ErrorLibrary.GetErrorResponse(((int)ApiErrorCode.EntityNotFound).ToString(), "fileName", fileName, null));
+                        }
+
+                        // Returns the file
+                        (MemoryStream memoryStream, string contentType) = await _storage.GetFileAsync(containerName, fileName);
+                        return File(memoryStream, contentType);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log an error.
+                        _logger.LogError(LoggingEvents.GetItem, $"GET Blob Unexpected error when returning {fileName} at container {containerName}.");
+
+                        // Data parameters to be passed to the handling error middleware.
+                        ex.Data["errorNumber"] = (int)ApiErrorCode.InternalError;
+                        ex.Data["paramName"] = "Not applicable";
+                        ex.Data["paramValue"] = "";
+
+                        // rethrow to the middleware.
+                        throw;
+
+                    }
+
+
+                }
+
+
+
+                /// <summary>
+                /// Returns all blobs in the container.
+                /// </summary>
+                /// <returns>Ok - List of files (blobs).
+                ///          BadRequest - Container not found or any other internal error.
+                /// </returns>
+                /// <remarks></remarks>    
+
+                [ProducesResponseType(typeof(BlobNameResponse[]), (int)HttpStatusCode.OK)] //200
+                [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]  //400
+                [HttpGet("uploadedimages")]
+
+                public async Task<IActionResult> RetrieveAllBlobs()
+                {
+                    string containerName = "";
+
+                    try
+                    {
+
+                        // Initialize variables.
+                        containerName = ApiSettings.UPLOADED_CONTAINERNAME;
+
+                        // Log retrieve all starts
+                        _logger.LogInformation(LoggingEvents.GetItem, $"GET ALL Blobs : Starting process. Container : {containerName}.");
+
+
+                        // Validate data input
+                        ObjectResult objectResult = _storage.ValidateData(containerName);
+                        if (objectResult != null) return (BadRequestObjectResult)objectResult;
+
+                        // Validate container existance.
+                        objectResult = _storage.ValidateExistance(containerName);
+                        if (objectResult != null) return (NotFoundObjectResult)objectResult;
+
+                        // LOG existance validation completed.
+                        _logger.LogInformation(LoggingEvents.GetItem, $"GET ALL Blobs : Container exist.");
+
+
+                        // Retrieve Blobs
+                        var returnAllBlobs = new List<BlobNameResponse>();
+                        List<string> allBlobs = await _storage.GetListOfBlobs(containerName);
+
+                        // Loop Blobs to build the response.
+                        foreach (string b in allBlobs)
+                        {
+                            //r.name = b;    
+                            returnAllBlobs.Add(new BlobNameResponse { id = b });
+                        }
+
+                        return new ObjectResult(returnAllBlobs);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log an error.
+                        _logger.LogError(LoggingEvents.GetItem, $"Get All Blobs : Unexpected error when retrieving Blobs at container {containerName}.");
+
+                        // Data parameters to be passed to the handling error middleware.
+                        ex.Data["errorNumber"] = (int)ApiErrorCode.InternalError;
+                        ex.Data["paramName"] = "Not applicable";
+                        ex.Data["paramValue"] = "";
+
+                        // rethrow to the middleware.
+                        throw;
+                    }
+
+
+                }
+
+
+                /// <summary>
+                /// Returns all Jobs in the storage table (imageconversionjobs).
+                /// </summary>
+                /// <returns>Ok - List of files (blobs).
+                ///          BadRequest - Container not found or any other internal error.
+                /// </returns>
+                /// <remarks></remarks>    
+
+                [ProducesResponseType(typeof(JobStatusResponse[]), (int)HttpStatusCode.OK)] //200
+                [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]  //400
+                [HttpGet("jobs")]
+
+                public async Task<IActionResult> RetrieveAllJobs()
+                {
+                    try
+                    {
+                        _logger.LogInformation(LoggingEvents.GetItem, $"GET ALL Jobs : Storage table {ApiSettings.TABLE_JOBS_NAME}.");
+
+                        // Initiate a list of JobStatusResponse
+                        var jobStatusList = new List<JobStatusResponse>();
+                        var jobStatus = new JobStatusResponse(new JobEntity());
+
+                        // ** REFACTORING is needed -> Notice mode added, but we will return all records.
+                        var jobTable = new JobTable(_logger, _configuration, "1");
+
+                        foreach (JobEntity entity in await jobTable.RetrieveJobEntityAll())
+                        {
+                            jobStatus = new JobStatusResponse(entity);
+
+                            jobStatusList.Add(jobStatus);
+                        }
+
+                        return new ObjectResult(jobStatusList);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log an error.
+                        _logger.LogError(LoggingEvents.GetItem, $"Get ALL Jobs : Unexpected error when retrieving job status records. Storage table {ApiSettings.TABLE_JOBS_NAME}.");
+
+                        // Data parameters to be passed to the handling error middleware.
+                        ex.Data["errorNumber"] = (int)ApiErrorCode.InternalError;
+                        ex.Data["paramName"] = "Not applicable";
+                        ex.Data["paramValue"] = "";
+
+                        // rethrow to the middleware.
+                        throw;
+                    }
+                }
+        */
+
+
+
     }
 }

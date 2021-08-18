@@ -7,7 +7,6 @@ using StorageLibrary.Models;
 using ConfigurationLibrary;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
-using ConfigurationLibrary;
 using StorageLibrary.Library;
 
 namespace StorageLibrary.Repositories
@@ -21,7 +20,7 @@ namespace StorageLibrary.Repositories
         private ILogger _log;
 
         /// <summary>
-        /// Classes responsible for all operations of read, add, and updated records to the storage table.
+        /// Classes responsible for all operations read, add, and updated records to the storage table.
         /// </summary>
         /// <param name="log"></param>
         /// <param name="configuration"></param>
@@ -30,6 +29,11 @@ namespace StorageLibrary.Repositories
         {
 
             string storageConnectionString = configuration.GetConnectionString(ConfigSettings.STORAGE_CONNECTIONSTRING_NAME);  //Environment.GetEnvironmentVariable(ConfigSettings.STORAGE_CONNECTIONSTRING_NAME);
+            if (storageConnectionString==null)
+            {
+                storageConnectionString = Environment.GetEnvironmentVariable($"ConnectionString:{ConfigSettings.STORAGE_CONNECTIONSTRING_NAME}");
+            }
+
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
  
             // Create the table client.
@@ -73,8 +77,6 @@ namespace StorageLibrary.Repositories
             // return the records filtered by conversion mode.
             var entityList = await this.RetrieveJobEntityByMode(filterHandler);
 
-            // ** Detailed log for debug.
-            //_log.LogInformation($"[+++] RetrieveJobEntityByName - returned a list with {entityList.Count} item(s).");
 
             // Loop the records to filter based on the criteria required.
             foreach (JobEntity entity in entityList)
@@ -83,21 +85,10 @@ namespace StorageLibrary.Repositories
                 if ((entity.status==(int)EnumJobStatusCode.Converted) &&
                     (entity.fileSource.Contains(name)))
                 {
-                    // ** Detailed log for debug.
-                    //_log.LogInformation($"[+++] RetrieveJobEntityByName - Found a match with the following table entity {entityList}.");
-
                     returnList.Add(entity);
                 }
             }
 
-            /* REMOVE IT / ideally would return just one record, in case not throw an exception
-            if (returnList.Count!=1)
-            {
-                // ** Detailed log for debug.
-                //_log.LogInformation($"[+++] RetrieveJobEntityByName - Found the following quantity of matches {returnList.Count} while just one was expected.");
-
-                return null;
-            }*/
 
             return returnList[0];
         }
@@ -197,7 +188,7 @@ namespace StorageLibrary.Repositories
         /// <param name="jobId">The job identifier.</param>
         /// <param name="status">The status.</param>
         /// <param name="statusDescription">Desciption to be updated, in case not provided, it's used the pre defined description, according the status.</param>
-        /// <param name="fileResult">Image resulted after the conversion. (Image successfuly converted or failed one).</param>
+        /// <param name="fileResult">File resulted is archived.</param>
         public async Task UpdateJobEntityStatus(string jobId, int status, string statusDescription, string fileResult)
         {
             JobEntity jobEntityToReplace = await RetrieveJobEntity(jobId);
@@ -223,6 +214,7 @@ namespace StorageLibrary.Repositories
         /// <param name="jobId">The job identifier.</param>
         /// <param name="status">The status.</param>
         /// <param name="fileSource">File Source.</param>
+
         public async Task InsertOrReplaceJobEntity(string jobId, int status, string fileSource)
         {
 
@@ -235,6 +227,7 @@ namespace StorageLibrary.Repositories
             jobEntityToInsertOrReplace.status = status;
             jobEntityToInsertOrReplace.statusDescription = message;
             jobEntityToInsertOrReplace.fileSource = fileSource;
+
 
 
             TableOperation insertReplaceOperation = TableOperation.InsertOrReplace(jobEntityToInsertOrReplace);

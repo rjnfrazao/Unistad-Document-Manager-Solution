@@ -27,7 +27,7 @@ namespace StorageLibrary.Repositories
         {
 
             // Storage connection string
-            string storageConnectionString = configuration.GetSection(ConfigSettings.STORAGE_CONNECTIONSTRING_NAME).Value;  
+            string storageConnectionString = configuration.GetSection(ConfigSettings.STORAGE_CONNECTIONSTRING_NAME).Value;
             //string storageConnectionString = Environment.GetEnvironmentVariable(ConfigSettings.STORAGE_CONNECTIONSTRING_NAME);
 
             // Create the File Share client.
@@ -51,7 +51,8 @@ namespace StorageLibrary.Repositories
             if (await _shareClient.ExistsAsync())
             {
                 return true;
-            } else
+            }
+            else
             {
                 _log.LogError($"File share {0} wasn't created", ConfigSettings.FILE_SHARE_NAME);
                 return false;
@@ -59,8 +60,8 @@ namespace StorageLibrary.Repositories
         }
 
 
-    
- 
+
+
         /// <summary>
         /// Returns the directory client. In case directory doesn't exist, the directory is created.
         /// </summary>
@@ -84,19 +85,33 @@ namespace StorageLibrary.Repositories
                 {
                     // Returns directory client.
                     return directoryClient;
-                } else
+                }
+                else
                 {
                     _log.LogError($"Directory {0} wasn't created", directory);
                     return null;
                 }
 
-            } else
+            }
+            else
             {
                 return null;
             }
 
         }
 
+
+
+        /// <summary>
+        /// Directory exists or not.
+        /// </summary>
+        /// <param name="directory">Directory name.</param>
+        /// <returns>True - Directory exists, otherwise returns false.</returns>
+        public bool DirectoryExists(string directory)
+        {
+            // TO BE IMPLEMENTED IN FUTURE.
+            throw new Exception("DirecotryExits method pending to be implemented in FileShare Class.");
+        }
 
 
         /// <summary>
@@ -127,12 +142,92 @@ namespace StorageLibrary.Repositories
                 {
                     return false;
                 }
-            } else
+            }
+            else
             {
                 return false;
             }
         }
 
+
+
+        /// <summary>
+        /// Move file share
+        /// </summary>
+        /// <param name="source">Source folder and file .</param>
+        /// <param name="destination">Destination folder and file name. </param>
+        /// <returns>True means the file was moved, otherwise returns false.</returns>
+        public async Task<bool> MoveFileUploaded(string source, string destination)
+        {
+
+            string sourceFile = "";
+            string sourceFolder = "";
+            string destinationFile = "";
+            string destinationFolder = "";
+
+
+            // Work out the file names and folder names.
+            sourceFile = Path.GetFileName(source);
+            sourceFolder = Path.GetDirectoryName(source);
+            destinationFile = Path.GetFileName(destination);
+            destinationFolder = Path.GetDirectoryName(destination);
+
+
+            // Get a reference to the source directory
+            ShareDirectoryClient sourceFolderClient = _shareClient.GetDirectoryClient(sourceFolder);
+
+            // Check the source folder exists
+            if (sourceFolderClient == null)
+            {
+                // LOG ERROR source folder doesn't exist
+
+                return false;
+            } 
+
+            // Get a reference to the source file 
+            ShareFileClient sourceFileClient = sourceFolderClient.GetFileClient(sourceFile);
+
+            // Ensure that the source file exists
+            if (!await sourceFileClient.ExistsAsync())
+            {
+                // LOG ERROR source file doesn't exist
+
+                return false;
+            }
+
+
+            // Get a reference to the destination folder
+            ShareDirectoryClient destinationFolderClient = _shareClient.GetDirectoryClient(destinationFolder);
+
+            // Creates if doesn't exist.
+            await destinationFolderClient.CreateIfNotExistsAsync();
+
+            // Get a reference to the destination file 
+            ShareFileClient destinationFileClient = sourceFolderClient.GetFileClient(destinationFile);
+
+            if (await destinationFileClient.ExistsAsync())
+            {
+                // LOG ERROR destination folder can't be overwritten.
+
+                return false;
+            }
+
+            // Start the copy operation
+            await destinationFileClient.StartCopyAsync(sourceFileClient.Uri);
+
+            // Ensure that the file was uploaded
+            if (await destinationFileClient.ExistsAsync())
+            {
+                _log.LogInformation($"File {sourceFolder}{sourceFile} moved to : {destinationFolder}{destinationFile}.");
+
+                return true;
+            }
+            else
+            {
+                _log.LogError($"File {sourceFolder}{sourceFile} wasn't moved to  {destinationFolder}{destinationFile}.");
+                return false;
+            }
+        }
 
 
         /// <summary>
@@ -144,13 +239,14 @@ namespace StorageLibrary.Repositories
         /// <param name="fileStream">Stream of the file uploaded.</param>
         /// <returns>True - File saved successfully, otherwise returns false.</returns>
         public async Task<bool> SaveFileUploaded(string directory, string file, Stream fileStream)
+
         {
 
             // Get a reference to the directory
             ShareDirectoryClient directoryClient = _shareClient.GetDirectoryClient(directory);
 
             // Check the client exists
-            if (directoryClient!=null)
+            if (directoryClient != null)
             {
                 // Get a reference to a file object
                 ShareFileClient destFileCLient = directoryClient.GetFileClient(file);
@@ -162,18 +258,21 @@ namespace StorageLibrary.Repositories
                 if (await destFileCLient.ExistsAsync())
                 {
                     return true;
-                } else
+                }
+                else
                 {
                     _log.LogError($"File {file} wasn't saved into the uploaded directory : {directory}.", file, directory);
                     return false;
                 }
-            } else
+            }
+            else
             {
                 // Directory wasn't initiated.
                 return false;
-            }
+            }                                   
 
         }
+
 
 
 
@@ -186,7 +285,7 @@ namespace StorageLibrary.Repositories
         public async Task<Stream> GetFile(string directory, string fileName)
         {
 
-            if (directory.Substring(0,3) == "c:\\")
+            if (directory.Substring(0, 3) == "c:\\")
             {
                 Stream fs = File.OpenRead($"{directory}\\{fileName}");
                 return fs;
@@ -210,14 +309,7 @@ namespace StorageLibrary.Repositories
 
                     return download.Content;
 
-                    /* Save the data to a local file, overwrite if the file already exists
-                    using (Stream stream = null)
-                    {
-                        await download.Content.CopyToAsync(stream);
-                        //await stream.FlushAsync();
-                        return stream;
-                    }
-                    */
+
                 }
             }
 
@@ -226,8 +318,21 @@ namespace StorageLibrary.Repositories
         }
 
 
-    }
+        /// <summary>
+        /// Get the file
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        public async Task DeleteFile(string directory, string fileName)
+        {
 
+            // Avoid warning message
+            await Task.FromResult(0);
+
+        }
+
+    }
 }
 
 

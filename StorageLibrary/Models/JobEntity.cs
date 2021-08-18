@@ -6,7 +6,7 @@ namespace StorageLibrary.Models
 {
     public class JobEntity : TableEntity
     {
-        // 1 : Queued / 2 : Job is running / 3 : Job Completed with Success / 4 : Job Failed
+        // 1 : File Uploaded / 2 : Job is running / 3 : Job Completed with Success / 4 : Job Failed
         public int status { get; set; }
 
         [MaxLength(512)]

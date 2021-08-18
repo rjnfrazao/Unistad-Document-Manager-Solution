@@ -5,6 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Exceptions\DocumentNameConversionException.cs" />
+    <Compile Remove="Exceptions\FileDuplicatedException.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="PdfPig" Version="0.1.4" />
   </ItemGroup>
 

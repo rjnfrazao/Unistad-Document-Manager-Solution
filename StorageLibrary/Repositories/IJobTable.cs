@@ -16,8 +16,8 @@ namespace StorageLibrary.Repositories
         Task<List<JobEntity>> RetrieveJobEntityByMode(string filterHandler);
         Task<List<JobEntity>> RetrieveJobEntityAll();
         Task<bool> UpdateJobEntity(JobEntity jobEntity);
-        Task UpdateJobEntityStatus(string jobId, int status, string statusDescription, string imageResult);
-        Task InsertOrReplaceJobEntity(string jobId, int status, string imageSource);
+        Task UpdateJobEntityStatus(string jobId, int status, string statusDescription, string fileResult);
+        Task InsertOrReplaceJobEntity(string jobId, int status, string fileSource);
 
     }
 }

@@ -12,9 +12,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="jobs\**" />
     <Compile Remove="Repositories\**" />
+    <Content Remove="jobs\**" />
     <Content Remove="Repositories\**" />
+    <EmbeddedResource Remove="jobs\**" />
     <EmbeddedResource Remove="Repositories\**" />
+    <None Remove="jobs\**" />
     <None Remove="Repositories\**" />
   </ItemGroup>
 

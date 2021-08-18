@@ -48,7 +48,7 @@ namespace StorageLibrary.Repositories
             // Create a message and add it to the queue.
             string message = JsonSerializer.Serialize(jobMessage);
 
-            var timeToLiveInConfiguration = Int16.Parse(_configuration.GetSection($"{ConfigSettings.APP_SETTINGS_SECTION}:DefaultTimeToLiveInSeconds").ToString());
+            var timeToLiveInConfiguration = Int32.Parse(_configuration.GetSection($"{ConfigSettings.APP_SETTINGS_SECTION}:DefaultTimeToLiveInSeconds").Value);
 
             await queue.SendMessageAsync(message, default, TimeSpan.FromSeconds(timeToLiveInSeconds ?? timeToLiveInConfiguration), default);
         }
@@ -72,7 +72,8 @@ namespace StorageLibrary.Repositories
             var connectionString = _configuration.GetConnectionString(ConfigSettings.QUEUE_CONNECTIONSTRING_NAME);
 
             // Get the Client for the queue
-            QueueClient queueClient = new QueueClient(connectionString, ConfigSettings.QUEUE_TOPROCESS_NAME);
+            QueueClient queueClient = new QueueClient(connectionString, ConfigSettings.QUEUE_TOPROCESS_NAME, 
+                new QueueClientOptions { MessageEncoding = QueueMessageEncoding.Base64 });
 
             // Create the queue if it doesn't already exist.
             await queueClient.CreateIfNotExistsAsync();

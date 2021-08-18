@@ -19,14 +19,23 @@ using System.Threading.Tasks;
 
 namespace DocumentUploader
 {
+
+    public class AplicationLogs
+    {
+
+    }
+
     public class Startup
     {
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
         }
 
         public IConfiguration Configuration { get; }
+
+
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -42,6 +51,21 @@ namespace DocumentUploader
             // Add Queue Service. Scoped means the same instance for the request but different across requests
             services.AddScoped<IQueue, StorageQueue>();
 
+            // Added as FileShare and FileSystem Classes has ILogger into the constructor. Otherwise an error happens.
+            var serviceProvider = BuildTheProvider(services); 
+            var logger = serviceProvider.GetService<ILogger<AplicationLogs>>();
+            services.AddSingleton(typeof(ILogger), logger);
+
+            // Inject the correct class, according the configuration, development uses
+            if (Configuration.GetValue<bool>("ApplicationSettings:UseDevelopmentStorage"))
+            {
+                services.AddScoped<IFileShare, FileSystem>();
+            }
+            else
+            {
+                services.AddScoped<IFileShare, StorageLibrary.Repositories.FileShare>();
+            }
+
             // Setup Swagger Document
             SetupSwaggerDocument(services);
         }
@@ -50,14 +74,13 @@ namespace DocumentUploader
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
 
-            app.UseExceptionHandlerMiddleware();
-
 
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseExceptionHandlerMiddleware();
 
             // Setup Swagger 
             SetupSwaggerJsonGenerationAndUI(app);
@@ -140,6 +163,17 @@ namespace DocumentUploader
                 c.RoutePrefix = string.Empty;
             });
 
+        }
+
+
+        /// <summary>
+        /// This function was created just to remove the following warning : "Calling 'BuildServiceProvider' from application code results in copy of Singleton warning"
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns></returns>
+        private ServiceProvider BuildTheProvider(IServiceCollection services)
+        {
+            return services.BuildServiceProvider();
         }
 
     }

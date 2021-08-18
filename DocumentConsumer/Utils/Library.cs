@@ -43,7 +43,7 @@ namespace DocumentConsumer.Utils
                     acronym = configuration.GetValue<string>(keyCode);
                     dictionary.Add(name, acronym);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     keyExist = false;   // Trigger to exit the loop.
                 }

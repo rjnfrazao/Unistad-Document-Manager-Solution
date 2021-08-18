@@ -238,7 +238,7 @@ namespace UnistadDocumentLibrary
             if (service == "") { ConversionErrorMessage = ConversionErrorMessage + "Service not found. [Error:114]"; }
 
             // Get the subfolder of the Service
-            string serviceFolder = getTargetFolder(stadium, _targetServiceFolder);
+            string serviceFolder = getTargetFolder(service, _targetServiceFolder);
             if (serviceFolder == "") { ConversionErrorMessage = ConversionErrorMessage + "Service target folder not found. [Error:115]"; }
 
             // Get Document type code, if not found update the error message.
@@ -259,7 +259,7 @@ namespace UnistadDocumentLibrary
             // In case an error happened, set the conversion flag to false.
             if (ConversionErrorMessage != "") { ConversionOk = false; }
 
-            return ($"{stadiumFolder}{serviceFolder}{documentTypeFolder}", $"{stadium}-{service}-{documentType}-{edrsNumber}{version}");
+            return ($"{stadiumFolder}\\{serviceFolder}\\{documentTypeFolder}\\", $"{stadium}-{service}-{documentType}-{edrsNumber}{version}");
         }
 
 

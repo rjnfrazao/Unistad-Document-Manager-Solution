@@ -48,7 +48,7 @@ namespace StorageLibrary.Library
                     }
                 case (int)ApiErrorCode.EntityAlreadyExist:
                     {
-                        return ("The entity already exists.", errorNumber);
+                        return ("The entity already exists. [customizedMsgHere]", errorNumber);
                     }
                 case (int)ApiErrorCode.InvalidParameter:
                     {
