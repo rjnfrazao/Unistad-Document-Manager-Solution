@@ -15,8 +15,8 @@ namespace DocumentUploader.DataTransferObjects
             partition = entity.PartitionKey;
             status = entity.status;
             statusDescription = entity.statusDescription;
-            imageSource = entity.fileSource;
-            imageResult = entity.fileResult;
+            fileSource = entity.fileSource;
+            fileResult = entity.fileResult;
 
         }
 
@@ -31,10 +31,10 @@ namespace DocumentUploader.DataTransferObjects
         public string statusDescription { get; set; }
 
         [MaxLength(512)]
-        public string imageSource { get; set; }
+        public string fileSource { get; set; }
 
         [MaxLength(512)]
-        public string imageResult { get; set; }
+        public string fileResult { get; set; }
 
     }
 }
