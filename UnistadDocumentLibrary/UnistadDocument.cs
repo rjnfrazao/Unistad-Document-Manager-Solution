@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ConfigurationLibrary;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
@@ -21,6 +22,7 @@ namespace UnistadDocumentLibrary
         private Dictionary<string, string> _targetServiceFolder;
 
         private Dictionary<string, string> _targetDocumentTypeFolder;
+
 
         /// <summary>
         /// Contructor requires the dictionaries used to map the value into a code. The three dictionraires are :
@@ -259,7 +261,7 @@ namespace UnistadDocumentLibrary
             // In case an error happened, set the conversion flag to false.
             if (ConversionErrorMessage != "") { ConversionOk = false; }
 
-            return ($"{stadiumFolder}\\{serviceFolder}\\{documentTypeFolder}\\", $"{stadium}-{service}-{documentType}-{edrsNumber}{version}");
+            return ($"{stadiumFolder}{ConfigSettings.FILE_SHARE_FOLDER_DELIMITER}{serviceFolder}{ConfigSettings.FILE_SHARE_FOLDER_DELIMITER}{documentTypeFolder}", $"{stadium}-{service}-{documentType}-{edrsNumber}{version}");
         }
 
 
@@ -274,10 +276,16 @@ namespace UnistadDocumentLibrary
         public string getTargetFolder(string code, Dictionary<string, string> dictionary )
         {
 
+            // Split the code, just in case multiples services are found. Ex.: ID-SB : Integrated Display and Scoreboard.
+            var arrayCodes = code.Split('-'); 
 
+            // Use the first code only to work out the subfolder.
+            string firstCode = arrayCodes[0];
+
+            // Loop until it finds the code on the dictiorary with codes and subfolder info.
             foreach(KeyValuePair<string, string> item in dictionary)
             {
-                if (item.Key.Contains(code))
+                if (item.Key.Contains(firstCode))
                 {
                     return item.Value;
                 }
@@ -286,77 +294,6 @@ namespace UnistadDocumentLibrary
             return "";
         }
 
-
-
-        /*
- 
-         private string containsService(string fileName)
-         {
-             Dictionary<string, string> services = new Dictionary<string, string>();
-             services.Add("1.1,2.2", "IBMS-ACS");
-             services.Add("IBMS-NCC", "IBMS-NCC");
-             services.Add("1.1", "IBMS");
-             services.Add("IBMS", "IBMS");
-             services.Add(" IBMS", "IBMS");
-             services.Add("2.1,2.2", "CCTV-ACS");
-             services.Add("2.2", "ACS");
-             services.Add("2.1", "CCTV");
-             services.Add("CCTV", "CCTV");
-             services.Add("IPTV-DS", "IPTV-DS");
-             services.Add("4.3,4.4", "IPTV-DS");
-             services.Add("4.4", "DS");
-             services.Add(" DS", "DS");
-             services.Add("-DS", "DS");
-             services.Add("4.3", "IPTV");
-             services.Add("IPTV", "IPTV");
-             services.Add("4.1,4.2", "ID-SB");
-             services.Add("ID-SB", "ID-SB");
-             services.Add("4.1", "ID");
-             services.Add("-ID", "ID");
-             services.Add(" ID", "ID");
-             services.Add("4.2", "SB");
-             services.Add("-SB", "SB");
-             services.Add(" SB", "SB");
-             services.Add("-ACS", "ACS");
-             services.Add(" ACS", "ACS");
-             services.Add("ACS", "ACS");
-             services.Add("3.1,3.2", "PAVA-PS");
-             services.Add("3.1", "PAVA");
-             services.Add("3.2", "PS");
-             services.Add("IPICS", "IPICS");
-             services.Add("NCC", "NCC");
-             services.Add("2.7", "NCC");
-             services.Add("6.1", "SNS");
-             services.Add("6.2", "TES");
-             services.Add("6.3", "MAS");
-
-
-             //while (fileName.IndexOf("\\") != -1)
-             //{
-             //    fileName = fileName.Substring(fileName.IndexOf("\\") + 1);
-             //}
-
-
-             // no case sensitive comparison.
-             fileName = fileName.ToUpper();
-
-             foreach (KeyValuePair<string, string> entry in services)
-             {
-                 // if current key exists in the fileName name (no case sensitive comparison)
-                 if (fileName.Contains(entry.Key.ToUpper()))
-                 {
-                     return entry.Value;
-                 }
-             }
-
-             return "";
-         }
-
-
-
-
-
- */
 
     }
 }

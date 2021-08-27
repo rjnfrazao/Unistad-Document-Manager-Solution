@@ -40,17 +40,19 @@ namespace ConfigurationLibrary
 
         // ----- File share Variables -----
 
+        public const string FILE_SHARE_FOLDER_DELIMITER = "\\";
+
         // Name of the table used to store the job status
-        public const string FILE_SHARE_NAME = "unistad-files\\";
+        public const string FILE_SHARE_NAME = "unistad-files";
 
         // Uploaded folder
-        public const string FILE_SHARE_UPLOADED_FOLDER = "jobs\\uploaded\\";
+        public const string FILE_SHARE_UPLOADED_FOLDER = "_jobs_uploaded";
 
         // Failed folder
-        public const string FILE_SHARE_FAILED_FOLDER = "jobs\\failed\\";
+        public const string FILE_SHARE_FAILED_FOLDER = "_jobs_failed";
 
         // Root folder to store the files processed.
-        public const string FILE_SHARE_UNISTAD_FOLDER = "unistad\\";
+        public const string FILE_SHARE_UNISTAD_FOLDER = "unistad";
 
 
 

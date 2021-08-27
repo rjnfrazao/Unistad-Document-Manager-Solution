@@ -27,7 +27,7 @@ namespace StorageLibrary.Repositories
         {
 
             // Storage connection string
-            string storageConnectionString = configuration.GetSection(ConfigSettings.STORAGE_CONNECTIONSTRING_NAME).Value;
+            string storageConnectionString = configuration.GetConnectionString(ConfigSettings.STORAGE_CONNECTIONSTRING_NAME).ToString();
             //string storageConnectionString = Environment.GetEnvironmentVariable(ConfigSettings.STORAGE_CONNECTIONSTRING_NAME);
 
             // Create the File Share client.
@@ -61,6 +61,35 @@ namespace StorageLibrary.Repositories
 
 
 
+        private async Task CreateRecursiveIfNotExists(ShareDirectoryClient directory)
+        {
+
+            string GetParentDirectory(string path)
+            {
+                string parent = "";
+                string add_delimiter = "";
+
+                //var delimiter = new char[] { ConfigSettings.FILE_SHARE_FOLDER_DELIMITER. };
+                var nestedFolderArray = path.Split(ConfigSettings.FILE_SHARE_FOLDER_DELIMITER);
+                for (var i = 0; i < nestedFolderArray.Length-1; i++)
+                {
+                    if (i > 0)  add_delimiter = ConfigSettings.FILE_SHARE_FOLDER_DELIMITER; // was delimiter
+                    
+                    parent = parent + add_delimiter + nestedFolderArray[i];
+                }
+ 
+                return parent;
+            }
+
+            if (! await directory.ExistsAsync())
+            {
+                string parentDir = GetParentDirectory(directory.Path);
+
+                await CreateRecursiveIfNotExists(_shareClient.GetDirectoryClient(parentDir));
+                await directory.CreateAsync();
+            }
+        }
+
 
         /// <summary>
         /// Returns the directory client. In case directory doesn't exist, the directory is created.
@@ -78,7 +107,8 @@ namespace StorageLibrary.Repositories
                 ShareDirectoryClient directoryClient = _shareClient.GetDirectoryClient(directory);
 
                 // Create the directory if it doesn't already exist
-                await directoryClient.CreateIfNotExistsAsync();
+                //await directoryClient.CreateIfNotExistsAsync();
+                await CreateRecursiveIfNotExists(directoryClient);
 
                 // Ensure that the directory exists
                 if (await directoryClient.ExistsAsync())
@@ -88,6 +118,7 @@ namespace StorageLibrary.Repositories
                 }
                 else
                 {
+
                     _log.LogError($"Directory {0} wasn't created", directory);
                     return null;
                 }
@@ -122,28 +153,35 @@ namespace StorageLibrary.Repositories
         /// <returns>True - File exists, otherwise returns false.</returns>
         public async Task<bool> FileExists(string directory, string file)
         {
-
-            ShareDirectoryClient directoryClient = await GetDirectoryClient(directory);
-
-            // Assure the file share exists.
-            if (directoryClient != null)
+            try
             {
 
-                // Get a reference to a file object
-                ShareFileClient fileClient = directoryClient.GetFileClient(file);
+                ShareDirectoryClient directoryClient = await GetDirectoryClient(directory);
 
-                // check if the file exists
-                if (await fileClient.ExistsAsync())
+                // Assure the file share exists.
+                if (directoryClient != null)
                 {
-                    return true;
 
+                    // Get a reference to a file object
+                    ShareFileClient fileClient = directoryClient.GetFileClient(file);
+
+                    // check if the file exists
+                    if (await fileClient.ExistsAsync())
+                    {
+                        return true;
+
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
                     return false;
                 }
-            }
-            else
+
+            } catch (Exception)
             {
                 return false;
             }
@@ -174,7 +212,7 @@ namespace StorageLibrary.Repositories
 
 
             // Get a reference to the source directory
-            ShareDirectoryClient sourceFolderClient = _shareClient.GetDirectoryClient(sourceFolder);
+            ShareDirectoryClient sourceFolderClient = await GetDirectoryClient(sourceFolder);
 
             // Check the source folder exists
             if (sourceFolderClient == null)
@@ -196,14 +234,14 @@ namespace StorageLibrary.Repositories
             }
 
 
-            // Get a reference to the destination folder
-            ShareDirectoryClient destinationFolderClient = _shareClient.GetDirectoryClient(destinationFolder);
+            // Get a reference to the destination folder, if folder doesn't exist create it.
+            ShareDirectoryClient destinationFolderClient = await GetDirectoryClient(destinationFolder);
 
             // Creates if doesn't exist.
-            await destinationFolderClient.CreateIfNotExistsAsync();
+            // await destinationFolderClient.CreateIfNotExistsAsync();
 
             // Get a reference to the destination file 
-            ShareFileClient destinationFileClient = sourceFolderClient.GetFileClient(destinationFile);
+            ShareFileClient destinationFileClient = destinationFolderClient.GetFileClient(destinationFile);
 
             if (await destinationFileClient.ExistsAsync())
             {
@@ -218,6 +256,7 @@ namespace StorageLibrary.Repositories
             // Ensure that the file was uploaded
             if (await destinationFileClient.ExistsAsync())
             {
+                await sourceFileClient.DeleteAsync();
                 _log.LogInformation($"File {sourceFolder}{sourceFile} moved to : {destinationFolder}{destinationFile}.");
 
                 return true;
@@ -243,7 +282,7 @@ namespace StorageLibrary.Repositories
         {
 
             // Get a reference to the directory
-            ShareDirectoryClient directoryClient = _shareClient.GetDirectoryClient(directory);
+            ShareDirectoryClient directoryClient = await GetDirectoryClient(directory);
 
             // Check the client exists
             if (directoryClient != null)
@@ -251,8 +290,18 @@ namespace StorageLibrary.Repositories
                 // Get a reference to a file object
                 ShareFileClient destFileCLient = directoryClient.GetFileClient(file);
 
+                // if the file doesn't exist. Create one before the upload.
+                if (! await destFileCLient.ExistsAsync())
+                {
+                    //Create an empty file if the file doesn't exist.
+                    await destFileCLient.CreateAsync(fileStream.Length);
+                }
+
+                fileStream.Position = 0;
+
                 // Start the copy operation
                 await destFileCLient.UploadAsync(fileStream);
+                
 
                 // Ensure that the file was uploaded
                 if (await destFileCLient.ExistsAsync())
@@ -304,11 +353,18 @@ namespace StorageLibrary.Repositories
                 // Ensure that the file exists
                 if (await fileClient.ExistsAsync())
                 {
+
+                    Stream stream = new MemoryStream();
+                    
                     // Download the file
                     ShareFileDownloadInfo download = await fileClient.DownloadAsync();
 
-                    return download.Content;
+                    await download.Content.CopyToAsync(stream);
 
+                    stream.Position = 0;
+
+                    return stream;
+                    
 
                 }
             }

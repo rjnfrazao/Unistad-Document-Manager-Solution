@@ -20,7 +20,10 @@ using System.Threading.Tasks;
 namespace DocumentUploader
 {
 
-    public class AplicationLogs
+    /// <summary>
+    /// Dummy class required due to the configuration of the Logger in Configure method.
+    /// </summary>
+    public class ApplicationLogs
     {
 
     }
@@ -53,7 +56,7 @@ namespace DocumentUploader
 
             // Added as FileShare and FileSystem Classes has ILogger into the constructor. Otherwise an error happens.
             var serviceProvider = BuildTheProvider(services); 
-            var logger = serviceProvider.GetService<ILogger<AplicationLogs>>();
+            var logger = serviceProvider.GetService<ILogger<ApplicationLogs>>();
             services.AddSingleton(typeof(ILogger), logger);
 
             // Inject the correct class, according the configuration, development uses

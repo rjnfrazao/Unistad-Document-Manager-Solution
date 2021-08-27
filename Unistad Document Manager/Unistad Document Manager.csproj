@@ -3,6 +3,11 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>Unistad_Document_Manager</RootNamespace>
+    <UserSecretsId>1bed968e-c426-4d60-8b67-1184b0d97d99</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StorageLibrary\StorageLibrary.csproj" />
+  </ItemGroup>
 
 </Project>

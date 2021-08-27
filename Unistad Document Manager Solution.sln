@@ -9,11 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocumentUploader", "Documen
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StorageLibrary", "StorageLibrary\StorageLibrary.csproj", "{84E29B11-2D55-4F94-911C-205667A14BC5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocumentConsumer", "DocumentConsumer\DocumentConsumer.csproj", "{C5624D84-1462-4F80-A0F5-2ECBE1764C1C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocumentConsumer", "DocumentConsumer\DocumentConsumer.csproj", "{C5624D84-1462-4F80-A0F5-2ECBE1764C1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnistadDocumentLibrary", "UnistadDocumentLibrary\UnistadDocumentLibrary.csproj", "{219C3C00-2F4F-494C-A7C0-D36CFF9944F8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnistadDocumentLibrary", "UnistadDocumentLibrary\UnistadDocumentLibrary.csproj", "{219C3C00-2F4F-494C-A7C0-D36CFF9944F8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationLibrary", "ConfigurationLibrary\ConfigurationLibrary.csproj", "{8C1A8E4F-5FF9-4D82-86E2-2AD066E9CD4B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigurationLibrary", "ConfigurationLibrary\ConfigurationLibrary.csproj", "{8C1A8E4F-5FF9-4D82-86E2-2AD066E9CD4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

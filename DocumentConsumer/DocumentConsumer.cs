@@ -60,11 +60,6 @@ namespace DocumentConsumer
                 Dictionary<string, string> targetDocumentDir = Utils.Library.InitializeDictionary(configuration, "DocumentFolder");
 
 
-                // Instantiate object responsible to work out the formated file name. 
-                UnistadDocument unistadDoc = new UnistadDocument(stadiumDir, serviceDir, documentTypeDir, edrmsList,
-                                                                targetStadiumDir, targetServiceDir, targetDocumentDir);
-                log.LogInformation($"Unistad document instatiated.");
-
                 // Desirialize the Job message
                 QueueJobMessage queueMessage = JsonConvert.DeserializeObject<QueueJobMessage>(myQueueItem);
 
@@ -73,7 +68,7 @@ namespace DocumentConsumer
 
                 await tableProcessor.UpdateJobTableWithStatus(log, queueMessage.jobId, 2, "", "");
 
-                log.LogInformation($"Job record {queueMessage.jobId} updated to {JobStatusCode.GetStatus(2)}");
+                log.LogInformation($"[+] Job record {queueMessage.jobId} updated to {JobStatusCode.GetStatus(2)}.");
 
                 // Folders where the files are located or stored.
                 uploadedFolder = ConfigSettings.FILE_SHARE_UPLOADED_FOLDER;
@@ -87,29 +82,34 @@ namespace DocumentConsumer
                     fileShare = new StorageLibrary.Repositories.FileSystem(log, configuration);
 
                     // Add the root folder location in the file system.
-                    uploadedFolder = configuration.GetValue<string>("DevelopmentFileSystemRoot") + uploadedFolder;
-                    failedFolder = configuration.GetValue<string>("DevelopmentFileSystemRoot") + failedFolder;
-                    targetRootFolder = configuration.GetValue<string>("DevelopmentFileSystemRoot") + targetRootFolder;
+                    uploadedFolder = configuration.GetValue<string>("DevelopmentFileSystemRoot") + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + uploadedFolder;
+                    failedFolder = configuration.GetValue<string>("DevelopmentFileSystemRoot") + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + failedFolder;
+                    targetRootFolder = configuration.GetValue<string>("DevelopmentFileSystemRoot") + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + targetRootFolder;
+
                 } else
                 {
                     // Production use the file share.
                     fileShare = new StorageLibrary.Repositories.FileShare(log, configuration);
-
+ 
                 }
 
-                log.LogInformation($"File share/system instatiated. Document name and destination folder will be worked out.");
+                // Instantiate object responsible to work out the formated file name. 
+                UnistadDocument unistadDoc = new UnistadDocument(stadiumDir, serviceDir, documentTypeDir, edrmsList,
+                                                                targetStadiumDir, targetServiceDir, targetDocumentDir);
+ 
+                log.LogInformation($"[+] File share and Unistad Document instatiated completed.");
 
 
                 // return the file as Stream, initialize a memory stream.
                 using (Stream stream = await fileShare.GetFile(uploadedFolder, queueMessage.fileName))
-                using (var memoryStream = new MemoryStream())
-                {
+                //using (var memoryStream = new MemoryStream())
+                //{
 
                     // copy the file stream into the memorystream, as PdfDocument requires seek the stream.
-                    await stream.CopyToAsync(memoryStream);
-                    memoryStream.Position = 0;
+                    //await stream.CopyToAsync(memoryStream);
+                    //memoryStream.Position = 0;
 
-                    using (PdfDocument pdfDoc = PdfDocument.Open(memoryStream))
+                    using (PdfDocument pdfDoc = PdfDocument.Open(stream))
                     {
                         int pageCount = pdfDoc.NumberOfPages;
 
@@ -130,25 +130,41 @@ namespace DocumentConsumer
 
                     }
 
-                }
+                //}
 
+
+                // Add file extension
+                documentName = documentName + ".pdf";
+
+                // Uploaded file path
+                string uploadedFile = uploadedFolder + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + queueMessage.fileName;
+
+                // Destination failed file path. Added part of the GUID to avoid duplicatation when saving the failed file.
+                failedDocumentName = queueMessage.fileName.Substring(0, queueMessage.fileName.IndexOf("."));
+                failedDocumentName = failedDocumentName + "-" + queueMessage.jobId.Substring(queueMessage.jobId.Length - 5) + ".pdf";
+                string failedFile = failedFolder + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + failedDocumentName;
+
+                // Destination file path, in case conversion successfuly completed.
+                string destinationFolder = targetRootFolder + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + targetSubFolder;
+                string destinationFile = destinationFolder + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + documentName;
 
                 // In case not able to work out the destination folder or file name.
-                // The process fails. File is moved to failed folder.
+                // The process fails. File is moved to failed folder
                 if (!unistadDoc.ConversionOk ||
-                            await fileShare.FileExists(targetRootFolder + targetSubFolder, documentName + ".pdf"))
+                            await fileShare.FileExists(destinationFolder, documentName))
                 {
                     // Process failed
+                    log.LogInformation($"[+] Process Failed. Document folder or file name couldn't be worked out.");
 
                     // remove the extension of the pdf and add GUID (5 last words).
-                    failedDocumentName = queueMessage.fileName.Substring(0, queueMessage.fileName.IndexOf("."));
-                    failedDocumentName = failedDocumentName + "-" + queueMessage.jobId.Substring(queueMessage.jobId.Length - 5) + ".pdf";
+
 
                     // Move the file to the Failed Folder.
-                    await fileShare.MoveFileUploaded(uploadedFolder + queueMessage.fileName, failedFolder + failedDocumentName);
 
-                    // PENDING: Update Jobs record with failure.
+                    await fileShare.MoveFileUploaded(uploadedFile, failedFile);
 
+
+                    // Not able to work out the new file name or destination folder, where the file should be archived.
                     if (!unistadDoc.ConversionOk)
                     {
            
@@ -156,50 +172,52 @@ namespace DocumentConsumer
                         errorMessage = $"Not able to work out the destination name of the document. Error message: {unistadDoc.ConversionErrorMessage}";
 
                         // Update record job status with status Job FAILED.
-                        await tableProcessor.UpdateJobTableWithStatus(log, queueMessage.jobId, 4, errorMessage, failedFolder + failedDocumentName);
+                        await tableProcessor.UpdateJobTableWithStatus(log, queueMessage.jobId, 4, errorMessage, failedFile);
 
                         // PENDING: Update Jobs record with success status.
-                        log.LogInformation($"Process Failed. {errorMessage}");
+                        log.LogInformation($"[+] Error: {errorMessage}");
 
                     }
                     else
                     {
-                        // Not able to work out the destination folder, where the file should be archived.
-                        errorMessage = $"The file {documentName} already exists at the destination folder {targetRootFolder}{targetSubFolder}. [ERROR: 201]";
- 
+                        // File already exist with the same name at the destination folder.
+
+                        errorMessage = $"The file {documentName} already exists at the destination folder {destinationFolder}. [ERROR: 201]";
+
+                        // Move the uploaded file to the failed file. Both are full path info.
+                        await fileShare.MoveFileUploaded(uploadedFile, failedFile);
+
                         // Update record job status with status Job FAILED.
-                        await tableProcessor.UpdateJobTableWithStatus(log, queueMessage.jobId, 4, errorMessage, failedFolder + failedDocumentName);
+                        await tableProcessor.UpdateJobTableWithStatus(log, queueMessage.jobId, 4, errorMessage, failedFile);
 
                         // PENDING: Update Jobs record with success status.
-                        log.LogInformation($"Process Failed. {errorMessage}");
+                        log.LogInformation($"[+] Error: {errorMessage}");
                     }
                 }
                 else
                 {
                     // Process completed successfully
 
-                    // add the file extension.
-                    documentName = documentName + ".pdf";
-
-                    // Everything is fine. Move the file in the destination folder using the destination file name.
-                    if (await fileShare.MoveFileUploaded(uploadedFolder + queueMessage.fileName, targetRootFolder + targetSubFolder + documentName))
+                    // Move the uploaded file to the destination file. Both are full path info.
+                    if (await fileShare.MoveFileUploaded(uploadedFile, destinationFile))
                     {
-                        
-                        // Update record job status with status Job Completed.
-                        await tableProcessor.UpdateJobTableWithStatus(log, queueMessage.jobId, 3, "", targetRootFolder + targetSubFolder + documentName);
 
-                        log.LogInformation($"Process Completed.");
+                        // Update record job status with status Job Completed.
+                        await tableProcessor.UpdateJobTableWithStatus(log, queueMessage.jobId, 3, "", destinationFile);
+
+                        log.LogInformation($"[+] Process completed sucessfuly.");
                     } 
                     else
                     {
-                        errorMessage = $"Process Failed. Not able to move the processed file to the destination folder";
+                        errorMessage = $"Internal Error. Not able to move the file {uploadedFile} successfuly converted to the destination folder {destinationFile}";
+
+                        // Move the uploaded file to the failed file. Both are full path info.
+                        await fileShare.MoveFileUploaded(uploadedFile, failedFile);
 
                         // Update record job status with status Job FAILED.
-                        await tableProcessor.UpdateJobTableWithStatus(log, queueMessage.jobId, 4, errorMessage, failedFolder + failedDocumentName);
+                        await tableProcessor.UpdateJobTableWithStatus(log, queueMessage.jobId, 4, errorMessage, failedFile);
 
-
-                        // PENDING: Update Jobs record with success status.
-                        log.LogInformation($"Process Failed. {errorMessage}");
+                        log.LogInformation($"[+] Process failed. Error: {errorMessage}");
                     }
 
                 }
@@ -209,7 +227,7 @@ namespace DocumentConsumer
             catch (Exception e)
             {
 
-                log.LogError($"Process Failed. Unknown exception [Error:200]. Error message: {e.Message}");
+                log.LogError($"[+] Process Failed. Unknown exception [Error:200]. Error message: {e.Message}");
             }
             
 

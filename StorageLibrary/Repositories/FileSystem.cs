@@ -66,8 +66,6 @@ namespace StorageLibrary.Repositories
 
                 return false;
 
-                //Stream fs = File.OpenRead($"{directory}\\{file}");
-                //return true;
             }
             catch (FileNotFoundException)
             { 
