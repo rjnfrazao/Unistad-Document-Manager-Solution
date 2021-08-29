@@ -25,25 +25,76 @@ namespace DocumentConsumer
         public async Task Run([QueueTrigger(ConfigSettings.QUEUE_TOPROCESS_NAME, Connection = ConfigSettings.QUEUE_CONNECTIONSTRING_NAME)]string myQueueItem, ExecutionContext context, ILogger log)
         {
             string uploadedFolder = "";
+            string uploadedFile = "";               // full path (uploadedFolder + queueMessage.fileName)           
             string failedFolder = "";
+            string failedDocumentName = "";
+            string failedFile = "";                 // full path (faildFolder + failedDocumentName)
+
             string targetRootFolder = "";
             string targetSubFolder = "";
             string documentName = "";
             string errorMessage = "";
-            string failedDocumentName = "";
 
-            IFileShare fileShare;
+            TableProcessor tableProcessor = null;
+            QueueJobMessage queueMessage = null;
+
+            IFileShare fileShare=null;
 
             try
             {
                 log.LogInformation($"Start processing. Queue trigger function processed: {myQueueItem}");
 
+                // Instantiate the configuration object
                 var configuration = new ConfigurationBuilder()
-                                        .SetBasePath(context.FunctionAppDirectory)
-                                        .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
-                                        .AddUserSecrets("b57a545a-6af3-4a60-91c2-c2b435445f69")
-                                        .AddEnvironmentVariables()
-                                        .Build();
+                        .SetBasePath(context.FunctionAppDirectory)
+                        .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
+                        .AddUserSecrets("b57a545a-6af3-4a60-91c2-c2b435445f69")
+                        .AddEnvironmentVariables()
+                        .Build();
+
+                // Desirialize the Job message
+                queueMessage = JsonConvert.DeserializeObject<QueueJobMessage>(myQueueItem);
+
+                // (#) Instatiate TableProcessor but inject JobTable object.
+                tableProcessor = new TableProcessor(new JobTable(log, configuration, ConfigSettings.TABLE_PATITION_KEY));
+
+                // Folders where the files are located or stored.
+                uploadedFolder = ConfigSettings.FILE_SHARE_UPLOADED_FOLDER;
+                failedFolder = ConfigSettings.FILE_SHARE_FAILED_FOLDER;
+                targetRootFolder = ConfigSettings.FILE_SHARE_UNISTAD_FOLDER;
+
+                // Initialize variables required to move files.
+                uploadedFile = uploadedFolder + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + queueMessage.fileName;      // Uploaded file path
+
+                // [+] Destination failed file path. Added part of the GUID to avoid duplicatation when saving the failed file.
+                failedDocumentName = queueMessage.fileName.Substring(0, queueMessage.fileName.IndexOf("."));
+                failedDocumentName = failedDocumentName + "-" + queueMessage.jobId.Substring(queueMessage.jobId.Length - 5) + ".pdf";
+                failedFile = failedFolder + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + failedDocumentName;
+
+
+                // There are no FileShare in Azurite, so in development use FileSystem to store the files.
+                if (configuration.GetValue<string>("AzureWebJobsStorage") == "UseDevelopmentStorage=true")
+                {
+                    // Development use the file system.
+                    fileShare = new StorageLibrary.Repositories.FileSystem(log, configuration);
+
+                    // Add the root folder location in the file system.
+                    uploadedFolder = configuration.GetValue<string>("DevelopmentFileSystemRoot") + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + uploadedFolder;
+                    failedFolder = configuration.GetValue<string>("DevelopmentFileSystemRoot") + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + failedFolder;
+                    targetRootFolder = configuration.GetValue<string>("DevelopmentFileSystemRoot") + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + targetRootFolder;
+
+                }
+                else
+                {
+                    // Production use the file share.
+                    fileShare = new StorageLibrary.Repositories.FileShare(log, configuration);
+
+                }
+
+
+
+                // Update job status to job running
+                await tableProcessor.UpdateJobTableWithStatus(log, queueMessage.jobId, 2, "", "");
 
                 // Load the dictionaries, where the mapping between value and code is stored (Stadium, Service, and Document Type).
                 Dictionary<string, string> stadiumDir = Utils.Library.InitializeDictionary(configuration, "Stadium");
@@ -60,38 +111,9 @@ namespace DocumentConsumer
                 Dictionary<string, string> targetDocumentDir = Utils.Library.InitializeDictionary(configuration, "DocumentFolder");
 
 
-                // Desirialize the Job message
-                QueueJobMessage queueMessage = JsonConvert.DeserializeObject<QueueJobMessage>(myQueueItem);
-
-                // (#) Instatiate TableProcessor but inject JobTable object.
-                var tableProcessor = new TableProcessor(new JobTable(log, configuration, ConfigSettings.TABLE_PATITION_KEY));
-
-                await tableProcessor.UpdateJobTableWithStatus(log, queueMessage.jobId, 2, "", "");
-
                 log.LogInformation($"[+] Job record {queueMessage.jobId} updated to {JobStatusCode.GetStatus(2)}.");
 
-                // Folders where the files are located or stored.
-                uploadedFolder = ConfigSettings.FILE_SHARE_UPLOADED_FOLDER;
-                failedFolder = ConfigSettings.FILE_SHARE_FAILED_FOLDER;
-                targetRootFolder = ConfigSettings.FILE_SHARE_UNISTAD_FOLDER;
 
-                // There are no FileShare in Azurite, so in development use FileSystem to store the files.
-                if (configuration.GetValue<string>("AzureWebJobsStorage") == "UseDevelopmentStorage=true")
-                {
-                    // Development use the file system.
-                    fileShare = new StorageLibrary.Repositories.FileSystem(log, configuration);
-
-                    // Add the root folder location in the file system.
-                    uploadedFolder = configuration.GetValue<string>("DevelopmentFileSystemRoot") + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + uploadedFolder;
-                    failedFolder = configuration.GetValue<string>("DevelopmentFileSystemRoot") + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + failedFolder;
-                    targetRootFolder = configuration.GetValue<string>("DevelopmentFileSystemRoot") + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + targetRootFolder;
-
-                } else
-                {
-                    // Production use the file share.
-                    fileShare = new StorageLibrary.Repositories.FileShare(log, configuration);
- 
-                }
 
                 // Instantiate object responsible to work out the formated file name. 
                 UnistadDocument unistadDoc = new UnistadDocument(stadiumDir, serviceDir, documentTypeDir, edrmsList,
@@ -100,49 +122,32 @@ namespace DocumentConsumer
                 log.LogInformation($"[+] File share and Unistad Document instatiated completed.");
 
 
-                // return the file as Stream, initialize a memory stream.
+                // Start process to workout file name and folder.
+                // Get the file as stream and instatiate pdf object
                 using (Stream stream = await fileShare.GetFile(uploadedFolder, queueMessage.fileName))
-                //using (var memoryStream = new MemoryStream())
-                //{
+                using (PdfDocument pdfDoc = PdfDocument.Open(stream))
+                {
+                    int pageCount = pdfDoc.NumberOfPages;
 
-                    // copy the file stream into the memorystream, as PdfDocument requires seek the stream.
-                    //await stream.CopyToAsync(memoryStream);
-                    //memoryStream.Position = 0;
+                    // Get first page
+                    Page page = pdfDoc.GetPage(1);
 
-                    using (PdfDocument pdfDoc = PdfDocument.Open(stream))
-                    {
-                        int pageCount = pdfDoc.NumberOfPages;
+                    // Initialize Cover Page
+                    unistadDoc.CoverPage = page.Text;
 
-                        // Get first page
-                        Page page = pdfDoc.GetPage(1);
+                    // Get second page
+                    page = pdfDoc.GetPage(2);
 
-                        // Initialize Cover Page
-                        unistadDoc.CoverPage = page.Text;
+                    // Initialize Second Page
+                    unistadDoc.SecondPage = page.Text;
 
-                        // Get second page
-                        page = pdfDoc.GetPage(2);
+                    // Get the document name, based on the content of the Cover Page and Second Page.
+                    (targetSubFolder, documentName) = unistadDoc.getDocumentName();
 
-                        // Initialize Second Page
-                        unistadDoc.SecondPage = page.Text;
-
-                        // Get the document name, based on the content of the Cover Page and Second Page.
-                        (targetSubFolder, documentName) = unistadDoc.getDocumentName();
-
-                    }
-
-                //}
-
+                }
 
                 // Add file extension
-                documentName = documentName + ".pdf";
-
-                // Uploaded file path
-                string uploadedFile = uploadedFolder + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + queueMessage.fileName;
-
-                // Destination failed file path. Added part of the GUID to avoid duplicatation when saving the failed file.
-                failedDocumentName = queueMessage.fileName.Substring(0, queueMessage.fileName.IndexOf("."));
-                failedDocumentName = failedDocumentName + "-" + queueMessage.jobId.Substring(queueMessage.jobId.Length - 5) + ".pdf";
-                string failedFile = failedFolder + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + failedDocumentName;
+                documentName = $"{documentName}.pdf";
 
                 // Destination file path, in case conversion successfuly completed.
                 string destinationFolder = targetRootFolder + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + targetSubFolder;
@@ -156,11 +161,7 @@ namespace DocumentConsumer
                     // Process failed
                     log.LogInformation($"[+] Process Failed. Document folder or file name couldn't be worked out.");
 
-                    // remove the extension of the pdf and add GUID (5 last words).
-
-
                     // Move the file to the Failed Folder.
-
                     await fileShare.MoveFileUploaded(uploadedFile, failedFile);
 
 
@@ -226,9 +227,23 @@ namespace DocumentConsumer
             }
             catch (Exception e)
             {
+                errorMessage = $"[+] Process Failed. Unknown exception [Error:200]. Error message: {e.Message}";
 
-                log.LogError($"[+] Process Failed. Unknown exception [Error:200]. Error message: {e.Message}");
-            }
+                log.LogError(errorMessage);
+
+                // In case unepected error happen, and tableProcessor was already initialized
+                // Assure the file uploaded is moved to failed folder and job status record is updated to process failed.
+                if (tableProcessor != null)
+                {
+                    
+                    // Move the uploaded file to the failed file. Both are full path info.
+                    await fileShare.MoveFileUploaded(uploadedFile, failedFile);
+
+                    // Update record job status with status Job FAILED.
+                    await tableProcessor.UpdateJobTableWithStatus(log, queueMessage.jobId, 4, errorMessage, failedFile);
+                }
+
+            } 
             
 
 
