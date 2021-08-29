@@ -160,14 +160,17 @@ namespace UnistadDocumentLibrary
             int number = 0;         // Current version number
 
             // Assure cover page text is upper case.
-            SecondPage = SecondPage.ToUpper();
+            string page = SecondPage.ToUpper();
+
+            // Sheck must start from "Revision" word onwards
+            page = page.Substring(page.IndexOf("REVISION")+1);
 
             // First Check - Try to find anything with 0.1, 0.2, etc as version is stored using this format in some files.
             // expression to be found for the version number.
-            Regex exp = new Regex("0\\.\\d{1,2}");
+            Regex exp = new Regex("\\s0\\.\\d{1,2}");
 
             // Apply the regular expression in the Second page
-            MatchCollection collection = exp.Matches(SecondPage);
+            MatchCollection collection = exp.Matches(page);
 
             // loop all version found in the second page.
             foreach (Match match in collection)
@@ -187,7 +190,7 @@ namespace UnistadDocumentLibrary
             exp = new Regex("\\s\\d{1}\\s\\d{1,2}-\\w{3,4}-\\d{2,4}\\s");
 
             // Apply the regular expression in the Second page
-            collection = exp.Matches(SecondPage);
+            collection = exp.Matches(page);
 
             // loop all version found in the second page.
             foreach (Match match in collection)
