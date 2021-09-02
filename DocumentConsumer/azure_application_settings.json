@@ -1,0 +1,653 @@
+[
+  {
+    "name": "DICTIONARY_Edrms_0_value",
+    "value": "SC-I60",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Edrms_1_value",
+    "value": "SC-C05",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Stadium_0_name",
+    "value": "Hub",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Stadium_0_code",
+    "value": "HB",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Stadium_1_name",
+    "value": "Abu Aboud",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Stadium_1_code",
+    "value": "RAA",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Stadium_2_name",
+    "value": "Thumama",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Stadium_2_code",
+    "value": "TH",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Stadium_3_name",
+    "value": "Education City",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Stadium_3_code",
+    "value": "EC",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Stadium_4_name",
+    "value": "Rayyan",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Stadium_4_code",
+    "value": "RN",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Stadium_5_name",
+    "value": "Lusail",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Stadium_5_code",
+    "value": "LS",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Stadium_6_name",
+    "value": "Bayt",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Stadium_6_code",
+    "value": "BT",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Stadium_7_name",
+    "value": "Janoub",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Stadium_7_code",
+    "value": "JB",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Stadium_8_name",
+    "value": "Khalifa",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Stadium_8_code",
+    "value": "KH",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Stadium_9_name",
+    "value": "Wakrah",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Stadium_9_code",
+    "value": "JB",
+    "slotSetting": false
+  },
+
+  {
+    "name": "DICTIONARY_Service_0_name",
+    "value": "National Command Center",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_0_code",
+    "value": "NCC",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_1_name",
+    "value": "IPTV",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_1_code",
+    "value": "IPTV",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_2_name",
+    "value": "Integrated Building",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_2_code",
+    "value": "IBMS",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_3_name",
+    "value": "Digital Signage",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_3_code",
+    "value": "DS",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_4_name",
+    "value": "Video Surveillance",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_4_code",
+    "value": "CCTV",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_5_name",
+    "value": "Building Access Control",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_5_code",
+    "value": "ACS",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_6_name",
+    "value": "Communication Interoperability",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_6_code",
+    "value": "IPICS",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_7_name",
+    "value": "Integrated Display",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_7_code",
+    "value": "ID",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_8_name",
+    "value": "Public Address",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_8_code",
+    "value": "PAVA",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_9_name",
+    "value": "Pro Sound",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_9_code",
+    "value": "PS",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_10_name",
+    "value": "Scoreboard",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_10_code",
+    "value": "SB",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_11_name",
+    "value": "Special Needs Service",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_11_code",
+    "value": "SNS",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_12_name",
+    "value": "Ticket Enablement Service",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_12_code",
+    "value": "TES",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_13_name",
+    "value": "Mass Access",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_13_code",
+    "value": "MAS",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_14_name",
+    "value": "IDAM",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_14_code",
+    "value": "IDAM",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_15_name",
+    "value": "ITSM",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_15_code",
+    "value": "ITSM",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_16_name",
+    "value": "Integrated Service Management",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_16_code",
+    "value": "ISM",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_17_name",
+    "value": "Asset Management",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_17_code",
+    "value": "AMS",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_18_name",
+    "value": "Green Stadium",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_18_code",
+    "value": "GS",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_19_name",
+    "value": "Personnel Tracking Service",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_19_code",
+    "value": "PTS",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_20_name",
+    "value": "Crowd Management",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_20_code",
+    "value": "CM",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_21_name",
+    "value": "Multichannel",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_21_code",
+    "value": "MWF",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_22_name",
+    "value": "Integrated-Building",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_Service_22_code",
+    "value": "IBMS",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_0_name",
+    "value": "Business Requirements",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_0_code",
+    "value": "BRS",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_1_name",
+    "value": "Solution Architecture",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_1_code",
+    "value": "SAD",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_2_name",
+    "value": "High Level",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_2_code",
+    "value": "HLFD",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_3_name",
+    "value": "Interface Asset Service",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_3_code",
+    "value": "IASS",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_4_name",
+    "value": "Interface Asset Consumer",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_4_code",
+    "value": "IACS",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_5_name",
+    "value": "Test Plan",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_5_code",
+    "value": "TP",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_6_name",
+    "value": "Training Plan",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_6_code",
+    "value": "TRP",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_7_name",
+    "value": "Detailed Technical",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_7_code",
+    "value": "DTD",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_8_name",
+    "value": "Service Level",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_8_code",
+    "value": "SLR",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_9_name",
+    "value": "Training Report",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_9_code",
+    "value": "TRR",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_10_name",
+    "value": "Test Summary",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_10_code",
+    "value": "TSR",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_11_name",
+    "value": "User Acceptance",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentType_11_code",
+    "value": "UAT",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_StadiumFolder_0_name",
+    "value": "HB",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_StadiumFolder_0_code",
+    "value": "01. HB",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_StadiumFolder_1_name",
+    "value": "BT",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_StadiumFolder_1_code",
+    "value": "02. BT",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_StadiumFolder_2_name",
+    "value": "JB",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_StadiumFolder_2_code",
+    "value": "03. JB",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_StadiumFolder_3_name",
+    "value": "EC",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_StadiumFolder_3_code",
+    "value": "04. EC",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_StadiumFolder_4_name",
+    "value": "RN",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_StadiumFolder_4_code",
+    "value": "05. RN",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_StadiumFolder_5_name",
+    "value": "TH",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_StadiumFolder_5_code",
+    "value": "06. TH",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_StadiumFolder_6_name",
+    "value": "KH",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_StadiumFolder_6_code",
+    "value": "07. KH",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_StadiumFolder_7_name",
+    "value": "RAA",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_StadiumFolder_7_code",
+    "value": "08. RAA",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_StadiumFolder_8_name",
+    "value": "LS",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_StadiumFolder_8_code",
+    "value": "09. LS",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_ServiceFolder_0_name",
+    "value": "IBMS CCTV ACS IPTV DS",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_ServiceFolder_0_code",
+    "value": "Package 1\\Base",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_ServiceFolder_1_name",
+    "value": "PAVA PS ID SB NCC SNS TES MAS IDAM",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_ServiceFolder_1_code",
+    "value": "Package 1\\Release 1",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_ServiceFolder_2_name",
+    "value": "ITSM",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_ServiceFolder_2_code",
+    "value": "Package 1\\Release 2",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_ServiceFolder_3_name",
+    "value": "ISM AMS GS PTS CM MWF IPICS",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_ServiceFolder_3_code",
+    "value": "Package 2",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentFolder_0_name",
+    "value": "PM DM",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentFolder_0_code",
+    "value": "MS-1",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentFolder_1_name",
+    "value": "BRS HLFD IACS IASS SAD",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentFolder_1_code",
+    "value": "MS-2",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentFolder_2_name",
+    "value": "TP TRP DTD",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentFolder_2_code",
+    "value": "MS-3",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentFolder_3_name",
+    "value": "SLR TRR",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentFolder_3_code",
+    "value": "MS-4",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentFolder_4_name",
+    "value": "TSR",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentFolder_4_code",
+    "value": "MS-5",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentFolder_5_name",
+    "value": "UAT",
+    "slotSetting": false
+  },
+  {
+    "name": "DICTIONARY_DocumentFolder_5_code",
+    "value": "MS-6",
+    "slotSetting": false
+  }
+]

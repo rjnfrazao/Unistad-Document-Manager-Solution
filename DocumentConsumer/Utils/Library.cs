@@ -34,8 +34,8 @@ namespace DocumentConsumer.Utils
             do
             {
 
-                keyName = map + ":[" + i + "]:name";
-                keyCode = map + ":[" + i + "]:code";
+                keyName = $"DICTIONARY_{map}_{i}_name";
+                keyCode = $"DICTIONARY_{map}_{i}_code";
 
                 try
                 {
@@ -82,7 +82,7 @@ namespace DocumentConsumer.Utils
             do
             {
 
-                keyValue = map + ":[" + i + "]:value";
+                keyValue = $"DICTIONARY_{map}_{i}_value";  
 
 
                 value = configuration.GetValue<string>(keyValue);
