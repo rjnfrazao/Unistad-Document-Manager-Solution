@@ -214,8 +214,9 @@ namespace StorageLibrary.Repositories
         /// <param name="jobId">The job identifier.</param>
         /// <param name="status">The status.</param>
         /// <param name="fileSource">File Source.</param>
+        /// <param name="user">User who is uploading the file.</param>
 
-        public async Task InsertOrReplaceJobEntity(string jobId, int status, string fileSource)
+        public async Task InsertOrReplaceJobEntity(string jobId, int status, string fileSource, string user)
         {
 
             // Get the desciptive message
@@ -227,6 +228,7 @@ namespace StorageLibrary.Repositories
             jobEntityToInsertOrReplace.status = status;
             jobEntityToInsertOrReplace.statusDescription = message;
             jobEntityToInsertOrReplace.fileSource = fileSource;
+            jobEntityToInsertOrReplace.user = user;
 
 
 

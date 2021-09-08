@@ -18,5 +18,8 @@ namespace StorageLibrary.Models
         [MaxLength(512)]
         public string fileResult { get; set; }
 
+        [MaxLength(512)]
+        public string user { get; set; }
+
     }
 }

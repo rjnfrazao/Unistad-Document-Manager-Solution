@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using ConfigurationLibrary;
@@ -11,27 +12,40 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using StorageLibrary.DataTransferObjects;
 using StorageLibrary.Repositories;
 using Unistad_Document_Manager.Pages.Models;
 
 namespace Unistad_Document_Manager.Pages.Upload
 {
-    public class IndexModel : PageModel
+    public class UploadPageModel : PageModel
     {
 
         // Configuration information
         private IConfiguration _configuration;
+
         // http client 
         private readonly IHttpClientFactory _clientFactory;
 
+        // Log service 
+        //private readonly ILogger<UploadPageModel> _logger;
 
-        public IndexModel(IHttpClientFactory clientFactory, IConfiguration configuration)
+        public UploadPageModel(IHttpClientFactory clientFactory, IConfiguration configuration)
         {
             _clientFactory = clientFactory;
             _configuration = configuration;
+            //_logger = logger;
 
             uploadResultList = new List<UploadResult>();
+
+            // Get the URI end point
+            // apiURI first check an environment variable configured at host, otherwise use the one from appsettings.json
+            apiURI = _configuration.GetValue<string>("APPSETTING_ApiConsumerUrl");
+            if (apiURI == "")
+            {
+                apiURI = _configuration.GetValue<string>("ApplicationSettings:ApiConsumerUrl");
+            }
 
         }
 
@@ -54,11 +68,13 @@ namespace Unistad_Document_Manager.Pages.Upload
         }
         
         public List<UploadResult> uploadResultList { get; set; }
+        public string apiURI = "";
 
 
         public void OnGet()
         {
-    
+
+            
         }
 
 
@@ -112,6 +128,8 @@ namespace Unistad_Document_Manager.Pages.Upload
                                 // set memory stream in the beginning
                                 ms.Position = 0;
 
+                                // _logger.LogInformation($"Document Manager. {User.Identity.Name} is uploading file {fileName}");
+
                                 // copy memory stream to byte array content (format required into the http client post to the API).
                                 using (ByteArrayContent filecontent = new ByteArrayContent(ms.ToArray()))
                                 {
@@ -121,12 +139,22 @@ namespace Unistad_Document_Manager.Pages.Upload
                                     // update the content (byte array) into the form field "fileData" API form field                      
                                     form.Add(filecontent, "fileData", file.FileName);
 
+                                    // Form data - user
+                                   //Dictionary<string, string> parameters = new Dictionary<string, string>();
+                                    //parameters.Add("user", User.Identity.Name);
+                                    //HttpContent DictionaryItems = new FormUrlEncodedContent(parameters);
+                                    //form.Add(DictionaryItems);
+
+
+                                    StringContent userContent = new StringContent(User.Identity.Name);
+                                    userContent.Headers.Add("Content-Disposition", "form-data; name=\"user\"");
+                                    form.Add(userContent, "user");
+
 
                                     // Get the URI end point
-                                   string apiURL = _configuration.GetValue<string>("ApplicationSettings:ApiConsumerUrl");
 
                                     // set the http request
-                                    var request = new HttpRequestMessage(HttpMethod.Put, apiURL);
+                                    var request = new HttpRequestMessage(HttpMethod.Put, apiURI);
 
                                     // submit the request and wait for the response.
                                     response = await client.PostAsync(request.RequestUri, form);
@@ -144,7 +172,9 @@ namespace Unistad_Document_Manager.Pages.Upload
                                     htmlMessageClass = "alert-success",
                                     textMessage = $"Uploaded successfuly.",
                                     });
-                            
+
+                                // _logger.LogInformation($"Document uploaded successfuly. {fileName}");
+
                             }
                             else
                             {
@@ -162,31 +192,11 @@ namespace Unistad_Document_Manager.Pages.Upload
                                                 $"Error ({errorResponse.errorNumber}) message : {errorResponse.errorDescription}",
                                 });
 
+                                // _logger.LogError($"Document upload failed. {fileName} - error message: {uploadResultList[uploadResultList.Count-1].textMessage}");
+
                             }
                         }
-                        /*
-                        // Read the file as Stream.
-                        using (Stream stream = DocumentUploaded.Files.OpenReadStream())
-                        {
-                            // Assure the stream is in the beginning.
-                            stream.Position = 0;
 
-                            // Save the file into the uploaded folder.
-                            bool resultOk = await _fileShare.SaveFileUploaded(ConfigSettings.FILE_SHARE_UPLOADED_FOLDER, fileName, stream);
-
-                            // Check if the file was saved.
-                            if (resultOk)
-                            {
-                                htmlMessageClass = "alert-success";
-                                textMessage = "File uploaded successfuly.";
-                            } 
-                            else
-                            {
-                                // File wasn't saved.
-                                textMessage = $"Internal error. The file {fileName} couldn't be saved, please try it again.";
-                            }
-                        }
-                        */
                     } 
                     else
                     {
@@ -208,7 +218,9 @@ namespace Unistad_Document_Manager.Pages.Upload
                         htmlMessageClass = "alert-danger",
                         textMessage = "The file is invalid.",
                     });
-                    
+
+                    // _logger.LogError($"Document upload failed. The file is invalid.");
+
                 }
 
                 // Display the same page
@@ -223,7 +235,9 @@ namespace Unistad_Document_Manager.Pages.Upload
                     htmlMessageClass = "alert-danger",
                     textMessage = $"Internal error. Exception message {ex.Message}.",
                 });
-                
+
+                // _logger.LogError($"Document upload failed. Internal error. Exception message: {ex.Message}");
+
                 return Page();
             }
 

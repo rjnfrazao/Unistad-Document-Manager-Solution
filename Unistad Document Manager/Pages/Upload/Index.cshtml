@@ -1,5 +1,5 @@
 ﻿@page
-@model Unistad_Document_Manager.Pages.Upload.IndexModel
+@model Unistad_Document_Manager.Pages.Upload.UploadPageModel
 @{
     ViewData["Title"] = "Upload page";
 }
@@ -41,6 +41,7 @@
                 </div>
             </div>
 
+
             @section Scripts {
                 <script>
                     $(document).ready(function () {
@@ -69,4 +70,5 @@
             }
         </form>
     </div>
+    <!--API end point : @Model.apiURI-->
 </div>

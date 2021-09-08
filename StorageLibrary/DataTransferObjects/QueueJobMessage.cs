@@ -32,11 +32,18 @@ namespace StorageLibrary.DataTransferObjects
         public string fileName { get; set; }
 
 
-        public QueueJobMessage(string partition, string job, string file)
+        /// <summary>
+        /// User who is uploading the file.
+        /// </summary>
+        /// <value>user name (e-mail)</value>
+        public string userName { get; set; }
+
+        public QueueJobMessage(string partition, string job, string file, string user)
         {
             partitionName = partition;
             jobId = job;
             fileName = file;
+            userName = user;
 
         }
 
