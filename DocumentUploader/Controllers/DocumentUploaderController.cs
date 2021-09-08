@@ -89,13 +89,14 @@ namespace DocumentUploader.Controllers
         /// Stores the file received via API into the storage File Share, add a message to the storage queue, in the end add a record to the Job Table Status.
         /// </summary>
         /// <param name="fileData">File data</param>
+        /// <param name="user">User's id uploading the file.</param>
         /// <returns>Returns 201 if file is created, and 400 in case of BadRequest.</returns>
         // Post: tasks/
         [ProducesResponseType(typeof(void), (int)HttpStatusCode.Created)]               //201
         [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]   //400
         [HttpPost]
         [Route("upload")]
-        public async Task<IActionResult> Create(IFormFile fileData)
+        public async Task<IActionResult> Create(IFormFile fileData, [FromForm] String user)
         {
             string directory = "";
             string fileName = "";
@@ -105,7 +106,7 @@ namespace DocumentUploader.Controllers
             {
 
                 // Log create process started.
-                _logger.LogInformation(LoggingEvents.InsertItem, $"POST : Starting upload document.");
+                _logger.LogInformation(LoggingEvents.InsertItem, $"POST : Start. {user} uploading document.");
 
                 // Initialize variables.
 
@@ -132,6 +133,14 @@ namespace DocumentUploader.Controllers
                 {
                     throw new ParameterIsRequired("fileName");
                 }
+
+
+                // "user" Parameter is required 
+                if (user is null)
+                {
+                    throw new ParameterIsRequired("user");
+                }
+
 
                 // Log create process started.
                 _logger.LogInformation(LoggingEvents.InsertItem, $"POST : Uploading file. {fileName}");
@@ -168,14 +177,14 @@ namespace DocumentUploader.Controllers
                     var jobId = Guid.NewGuid().ToString(); 
 
                     // Add to the Queue.
-                    var message = new QueueJobMessage(ConfigSettings.TABLE_PATITION_KEY, jobId, fileName);
+                    var message = new QueueJobMessage(ConfigSettings.TABLE_PATITION_KEY, jobId, fileName, user);
                     await _queue.AddQueueMessage(message, null);
 
                     // (#) Instatiate TableProcessor but inject JobTable object.
                     var tableProcessor = new TableProcessor(new JobTable(_logger, _configuration, ConfigSettings.TABLE_PATITION_KEY));
 
                     // Create record job status with status Queued.
-                    await tableProcessor.CreateJobTableWithStatus(_logger, jobId, fileName);
+                    await tableProcessor.CreateJobTableWithStatus(_logger, jobId, fileName, user);
 
                     // Created successfuly. Returns created status with the location of the blob uploaded
                     return CreatedAtRoute(_retrieveJobById, new { id = jobId }, null);

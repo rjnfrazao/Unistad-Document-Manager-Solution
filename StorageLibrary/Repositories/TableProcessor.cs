@@ -22,8 +22,9 @@ namespace StorageLibrary.Repositories
         /// </summary>
         /// <param name="log">The log.</param>
         /// <param name="jobId">The job identifier (GUI).</param>
-        /// <param name="fileName">Image source to be converted</param>
-        public async Task CreateJobTableWithStatus(ILogger log, string jobId, string fileName)
+        /// <param name="fileName">Image source to be converted.</param>
+        /// <param name="userName">User who is uploading the file.</param>
+        public async Task CreateJobTableWithStatus(ILogger log, string jobId, string fileName, string userName)
         {
             // The initial status "Uploaded"
             EnumJobStatusCode status = EnumJobStatusCode.Queued;
@@ -32,7 +33,7 @@ namespace StorageLibrary.Repositories
             
            
             // Insert or replace record into the table.
-            await _jobTable.InsertOrReplaceJobEntity(jobId, (int)status, fileName);
+            await _jobTable.InsertOrReplaceJobEntity(jobId, (int)status, fileName, userName);
             
         }
 
