@@ -19,9 +19,8 @@ jobs:
     steps:
       - run: echo "Document Manager Project - Building docker image."
       - uses: actions/checkout@v2    
-      - name: Build the Docker image
-        working-directory: Unistad Document Manager
-        run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      - name: Build the Docker image       
+        run: docker build . --file ./Unistad Document Manager/Dockerfile --tag my-image-name:$(date +%s)
       - run: echo "Docker image completed."
   
   Explore-GitHub-Actions:
