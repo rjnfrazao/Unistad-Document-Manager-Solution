@@ -23,7 +23,6 @@ namespace Unistad_Document_Manager
     public class Startup
     {
 
-
         private readonly HttpClient _httpClient;
 
         public Startup(IConfiguration configuration)
