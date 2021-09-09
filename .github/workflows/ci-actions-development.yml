@@ -8,14 +8,12 @@ on:
 jobs:
   Build-Log-Start:
     runs-on: ubuntu-latest
-
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
   
   Build-Unistad-Consumer:
     runs-on: ubuntu-latest
-
     steps:
       - run: echo "Document Manager Project - Building docker image."
       - uses: actions/checkout@v2    
