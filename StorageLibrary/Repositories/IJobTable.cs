@@ -18,6 +18,5 @@ namespace StorageLibrary.Repositories
         Task<bool> UpdateJobEntity(JobEntity jobEntity);
         Task UpdateJobEntityStatus(string jobId, int status, string statusDescription, string fileResult);
         Task InsertOrReplaceJobEntity(string jobId, int status, string fileSource, string user);
-
     }
 }
