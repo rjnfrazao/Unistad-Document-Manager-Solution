@@ -19,10 +19,10 @@ EXPOSE 80 443 #2222
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
-COPY ["Unistad Document Manager/Unistad Document Manager.csproj", "Unistad Document Manager/"]
-COPY ["StorageLibrary/StorageLibrary.csproj", "StorageLibrary/"]
-COPY ["ConfigurationLibrary/ConfigurationLibrary.csproj", "ConfigurationLibrary/"]
-RUN dotnet restore "Unistad Document Manager/Unistad Document Manager.csproj"
+COPY ["src/Unistad Document Manager/Unistad Document Manager.csproj", "Unistad Document Manager/"]
+COPY ["src/StorageLibrary/StorageLibrary.csproj", "StorageLibrary/"]
+COPY ["src/ConfigurationLibrary/ConfigurationLibrary.csproj", "ConfigurationLibrary/"]
+RUN dotnet restore "src/Unistad Document Manager/Unistad Document Manager.csproj"
 COPY . .
 WORKDIR "/src/Unistad Document Manager"
 RUN dotnet build "Unistad Document Manager.csproj" -c Release -o /app/build
