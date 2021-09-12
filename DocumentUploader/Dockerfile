@@ -13,7 +13,7 @@ COPY ["ConfigurationLibrary/ConfigurationLibrary.csproj", "ConfigurationLibrary/
 RUN dotnet restore "DocumentUploader/DocumentUploader.csproj"
 COPY . .
 WORKDIR "/src/DocumentUploader"
-RUN dotnet build "DocumentUploader.csproj" -c Release -o /app/build
+RUN dotnet build "DocumentUploader.csproj" -c Release -o /app/build 
 
 FROM build AS publish
 RUN dotnet publish "DocumentUploader.csproj" -c Release -o /app/publish
@@ -21,4 +21,4 @@ RUN dotnet publish "DocumentUploader.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "DocumentUploader.dll"]
+ENTRYPOINT ["dotnet", "DocumentUploader.dll", "--add-host host.docker.internal:host-gateway"]

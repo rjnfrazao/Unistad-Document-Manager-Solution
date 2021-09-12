@@ -22,7 +22,7 @@ namespace DocumentUploader.Controllers
 {
     [Route("api/v1/")]
     [ApiController]
-    public class DocumentUploaderController : ControllerBase
+    public class DocumentController : ControllerBase
     {
 
         /// <summary>
@@ -61,17 +61,17 @@ namespace DocumentUploader.Controllers
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DocumentUploaderController"/> class.
+        /// Initializes a new instance of the <see cref="DocumentController"/> class.
         /// </summary>
         /// <param name="storage">Storage interface.</param>
         /// <param name="queue">Queue interface.</param>
         /// <param name="fileShare">File share interface.</param>
         /// <param name="logger">Log object used to log messages.</param>
         /// <param name="configuration">Configuration object with the application settings.</param>
-        public DocumentUploaderController(IStorage storage,
+        public DocumentController(IStorage storage,
                                 IQueue queue,
                                 IFileShare fileShare,
-                                ILogger<DocumentUploaderController> logger,
+                                ILogger<DocumentController> logger,
                                 IConfiguration configuration)
 
         {
@@ -177,11 +177,11 @@ namespace DocumentUploader.Controllers
                     var jobId = Guid.NewGuid().ToString(); 
 
                     // Add to the Queue.
-                    var message = new QueueJobMessage(ConfigSettings.TABLE_PATITION_KEY, jobId, fileName, user);
+                    var message = new QueueJobMessage(ConfigSettings.TABLE_PARTITION_KEY, jobId, fileName, user);
                     await _queue.AddQueueMessage(message, null);
 
                     // (#) Instatiate TableProcessor but inject JobTable object.
-                    var tableProcessor = new TableProcessor(new JobTable(_logger, _configuration, ConfigSettings.TABLE_PATITION_KEY));
+                    var tableProcessor = new TableProcessor(new JobTable(_logger, _configuration, ConfigSettings.TABLE_PARTITION_KEY));
 
                     // Create record job status with status Queued.
                     await tableProcessor.CreateJobTableWithStatus(_logger, jobId, fileName, user);
@@ -282,7 +282,7 @@ namespace DocumentUploader.Controllers
 
 
                 // ** REFACTORING is needed in case conversion mode is removed from the constructor.
-                var jobTable = new JobTable(_logger, _configuration, ConfigSettings.TABLE_PATITION_KEY);
+                var jobTable = new JobTable(_logger, _configuration, ConfigSettings.TABLE_PARTITION_KEY);
 
                 // Entity has the data returned from the storage table.
                 // var entity = await table.ExecuteQuerySegmentedAsync(jobStatusQuery, null);
@@ -327,6 +327,64 @@ namespace DocumentUploader.Controllers
                 throw;
             }
 
+        }
+
+
+        /// <summary>
+        /// Returns all Jobs in the storage table.
+        /// </summary>
+        /// <param name="userName">If user name is provided returns jobs uploaded by the user, if blank returns all jobs.</param>
+        /// <returns>Ok - List of jobs .
+        ///          Empty - No 
+        ///          BadRequest - Container not found or any other internal error.
+        /// </returns>
+        /// <remarks></remarks>    
+
+        [ProducesResponseType(typeof(JobStatusResponse[]), (int)HttpStatusCode.OK)]     //200
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]     //404
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]   //400
+        [HttpGet("jobs/")]
+        [HttpGet("jobs/{userName?}")]
+
+        public async Task<IActionResult> RetrieveAllJobs(string userName = "")
+        {
+            try
+            {
+                _logger.LogInformation(LoggingEvents.GetItem, $"GET all jobs by user {userName}. Storage table {ConfigSettings.TABLE_JOBS_NAME}.");
+
+                // Initiate a list of JobStatusResponse
+                var jobStatusList = new List<JobStatusResponse>();
+                var jobStatus = new JobStatusResponse(new JobEntity());
+
+                // ** REFACTORING is needed -> Notice mode added, but we will return all records.
+                var jobTable = new JobTable(_logger, _configuration, ConfigSettings.TABLE_PARTITION_KEY);
+
+                foreach (JobEntity entity in await jobTable.RetrieveJobEntityAll(userName))
+                {
+                    jobStatus = new JobStatusResponse(entity);
+
+                    jobStatusList.Add(jobStatus);
+                }
+
+                // In case records weren't found, returns entity not found error.
+                if (jobStatusList.Count == 0) return new NotFoundObjectResult(ErrorLibrary.GetErrorResponse(((int)ApiErrorCode.EntityNotFound).ToString(), "user", userName, null));
+
+                return new ObjectResult(jobStatusList);
+
+            }
+            catch (Exception ex)
+            {
+                // Log an error.
+                _logger.LogError(LoggingEvents.GetItem, $"[+] Unexpected error when retrieving job status records. Storage table {ConfigSettings.TABLE_JOBS_NAME}.");
+
+                // Data parameters to be passed to the handling error middleware.
+                ex.Data["errorNumber"] = (int)ApiErrorCode.InternalError;
+                ex.Data["paramName"] = "Not applicable";
+                ex.Data["paramValue"] = "";
+
+                // rethrow to the middleware.
+                throw;
+            }
         }
 
 
@@ -479,55 +537,7 @@ namespace DocumentUploader.Controllers
                 }
 
 
-                /// <summary>
-                /// Returns all Jobs in the storage table (imageconversionjobs).
-                /// </summary>
-                /// <returns>Ok - List of files (blobs).
-                ///          BadRequest - Container not found or any other internal error.
-                /// </returns>
-                /// <remarks></remarks>    
 
-                [ProducesResponseType(typeof(JobStatusResponse[]), (int)HttpStatusCode.OK)] //200
-                [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]  //400
-                [HttpGet("jobs")]
-
-                public async Task<IActionResult> RetrieveAllJobs()
-                {
-                    try
-                    {
-                        _logger.LogInformation(LoggingEvents.GetItem, $"GET ALL Jobs : Storage table {ApiSettings.TABLE_JOBS_NAME}.");
-
-                        // Initiate a list of JobStatusResponse
-                        var jobStatusList = new List<JobStatusResponse>();
-                        var jobStatus = new JobStatusResponse(new JobEntity());
-
-                        // ** REFACTORING is needed -> Notice mode added, but we will return all records.
-                        var jobTable = new JobTable(_logger, _configuration, "1");
-
-                        foreach (JobEntity entity in await jobTable.RetrieveJobEntityAll())
-                        {
-                            jobStatus = new JobStatusResponse(entity);
-
-                            jobStatusList.Add(jobStatus);
-                        }
-
-                        return new ObjectResult(jobStatusList);
-
-                    }
-                    catch (Exception ex)
-                    {
-                        // Log an error.
-                        _logger.LogError(LoggingEvents.GetItem, $"Get ALL Jobs : Unexpected error when retrieving job status records. Storage table {ApiSettings.TABLE_JOBS_NAME}.");
-
-                        // Data parameters to be passed to the handling error middleware.
-                        ex.Data["errorNumber"] = (int)ApiErrorCode.InternalError;
-                        ex.Data["paramName"] = "Not applicable";
-                        ex.Data["paramValue"] = "";
-
-                        // rethrow to the middleware.
-                        throw;
-                    }
-                }
         */
 
 

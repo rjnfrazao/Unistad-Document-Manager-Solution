@@ -56,7 +56,7 @@ namespace DocumentConsumer
                 queueMessage = JsonConvert.DeserializeObject<QueueJobMessage>(myQueueItem);
 
                 // (#) Instatiate TableProcessor but inject JobTable object.
-                tableProcessor = new TableProcessor(new JobTable(log, configuration, ConfigSettings.TABLE_PATITION_KEY));
+                tableProcessor = new TableProcessor(new JobTable(log, configuration, ConfigSettings.TABLE_PARTITION_KEY));
 
                 // Folders where the files are located or stored.
                 uploadedFolder = ConfigSettings.FILE_SHARE_UPLOADED_FOLDER;

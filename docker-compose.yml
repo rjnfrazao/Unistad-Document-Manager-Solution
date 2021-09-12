@@ -1,0 +1,37 @@
+version: '3.4'
+
+services:
+  unistaddocumentmanager:
+    image: ${DOCKER_REGISTRY-}unistaddocumentmanager
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://localhost;http://localhost
+      - ASPNETCORE_HTTPS_PORT=44349   
+      # Do not create development certificate in an environment that will be distributed.
+      - DOTNET_GENERATE_ASPNET_CERTIFICATE=false
+    ports:
+      - "51218:80"
+      - "44349:443"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets/:/root/.microsoft/usersecrets
+#      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https/
+    build:
+      context: .
+      dockerfile: Unistad Document Manager/Dockerfile
+  documentuploader:
+    image: ${DOCKER_REGISTRY-}documentuploader
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://localhost;http://localhost
+      - ASPNETCORE_HTTPS_PORT=44335
+      # Do not create development certificate in an environment that will be distributed.
+      - DOTNET_GENERATE_ASPNET_CERTIFICATE=false
+    ports:
+      - "51217:80"
+      - "44335:443"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets/:/root/.microsoft/usersecrets
+#      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https/
+    build:
+      context: .
+      dockerfile: DocumentUploader/Dockerfile

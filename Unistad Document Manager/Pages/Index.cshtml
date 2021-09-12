@@ -8,3 +8,31 @@
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
+<div></div>
+<div class="container">
+
+    @if (Model.jobStatusList.Count > 0)
+    {
+        @foreach (var item in Model.jobStatusList)
+        {
+    <div class="row">
+        <div class="col-1">
+            @item.Timestamp
+        </div>
+        <div class="col-1">
+            @item.user
+        </div>
+        <div class="col-4">
+            <div>From: @item.fileSource</div>
+            <div>To: @item.fileResult</div>
+        </div>
+        <div class="col-3">
+            @item.statusDescription
+        </div>
+        <div class="col-3">
+            @item.RowKey
+        </div>
+    </div>
+        }
+    }
+</div>
