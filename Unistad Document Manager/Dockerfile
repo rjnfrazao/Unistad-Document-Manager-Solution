@@ -1,22 +1,9 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-
-#ssh
-#ENV SSH_PASSWD "root:Docker!"
-#RUN apt-get update \
-#        && apt-get install -y --no-install-recommends dialog \
-#        && apt-get update \
-#  && apt-get install -y --no-install-recommends openssh-server \
-#  && echo "$SSH_PASSWD" | chpasswd 
-
-#COPY ["Unistad Document Manager/sshd_config", "/etc/ssh/"]
-#COPY ["Unistad Document Manager/init_container.sh", "/usr/local/bin/"]
-
 FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
 WORKDIR /app
-EXPOSE 80 443
-
-
+EXPOSE 80
+EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
