@@ -16,11 +16,9 @@ namespace Unistad_Document_Manager.Pages
     public class IndexModel : PageModel
     {
 
-
+        // logger 
         private readonly ILogger<IndexModel> _logger;
 
-        // Configuration information
-        private IConfiguration _configuration;
 
         // http client 
         private readonly IHttpClientFactory _clientFactory;
@@ -32,6 +30,8 @@ namespace Unistad_Document_Manager.Pages
 
             // Get the URI end point
             apiURI = Utils.GetApiUrl(configuration);
+
+            jobStatusList = new List<JobEntity>();
         }
 
 
@@ -42,33 +42,40 @@ namespace Unistad_Document_Manager.Pages
 
         public async Task OnGet()
         {
-
-            using (var client = _clientFactory.CreateClient())      // initialize the http client             
+            try
             {
-                _logger.LogInformation($"Home Page. Document Manager. {User.Identity.Name}.");
 
-                // set the http request
-                var request = new HttpRequestMessage(HttpMethod.Get, apiURI + $"jobs/{User.Identity.Name}");
-
-                // submit the request and wait for the response.
-                var response = await client.GetAsync(request.RequestUri);
-
-
-                if (response.IsSuccessStatusCode)
+                using (var client = _clientFactory.CreateClient())      // initialize the http client             
                 {
-                    using (var responseStream = await response.Content.ReadAsStreamAsync())
+                    _logger.LogInformation($"Document Manager : Index : OnGet : by user {User.Identity.Name ?? "User not logged yet."}.");
+
+                    // set the http request
+                    var request = new HttpRequestMessage(HttpMethod.Get, apiURI + $"jobs/{User.Identity.Name}");
+
+                    // submit the request and wait for the response.
+                    var response = await client.GetAsync(request.RequestUri);
+
+
+                    if (response.IsSuccessStatusCode)
                     {
-                        jobStatusList = await JsonSerializer.DeserializeAsync<IList<JobEntity>>(responseStream);
+                        using (var responseStream = await response.Content.ReadAsStreamAsync())
+                        {
+                            jobStatusList = await JsonSerializer.DeserializeAsync<IList<JobEntity>>(responseStream);
+                        }
                     }
-                }
-                else
-                {
-                    // API call returned an error.                   
-                    _logger.LogError($"Error calling the API to retrieve all records.");
+                    else
+                    {
+                        // API call returned an error.                   
+                        _logger.LogError($"Document Manager : Index : OnGet : Error calling the API to retrieve all records.");
+
+                    }
 
                 }
 
-            } 
+            } catch (Exception ex)
+            {
+                _logger.LogError($"Document Manager : Index : OnGet : Unexpected erro : " + ex.Message);
+            }
 
 
         }
