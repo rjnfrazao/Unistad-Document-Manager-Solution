@@ -51,6 +51,11 @@ button.accept-policy {
   line-height: inherit;
 }
 
+/* e-mail or string without spaces avoid overlap over others content.*/
+div {
+    word-wrap: break-word;
+}
+
 /* Sticky footer styles
 -------------------------------------------------- */
 html {
@@ -69,3 +74,4 @@ body {
   white-space: nowrap;
   line-height: 60px; /* Vertically center the text there */
 }
+

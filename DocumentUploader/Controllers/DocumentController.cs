@@ -22,7 +22,7 @@ namespace DocumentUploader.Controllers
 {
     [Route("api/v1/")]
     [ApiController]
-    public class DocumentUploaderController : ControllerBase
+    public class DocumentController : ControllerBase
     {
 
         /// <summary>
@@ -61,17 +61,17 @@ namespace DocumentUploader.Controllers
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DocumentUploaderController"/> class.
+        /// Initializes a new instance of the <see cref="DocumentController"/> class.
         /// </summary>
         /// <param name="storage">Storage interface.</param>
         /// <param name="queue">Queue interface.</param>
         /// <param name="fileShare">File share interface.</param>
         /// <param name="logger">Log object used to log messages.</param>
         /// <param name="configuration">Configuration object with the application settings.</param>
-        public DocumentUploaderController(IStorage storage,
+        public DocumentController(IStorage storage,
                                 IQueue queue,
                                 IFileShare fileShare,
-                                ILogger<DocumentUploaderController> logger,
+                                ILogger<DocumentController> logger,
                                 IConfiguration configuration)
 
         {
@@ -106,7 +106,7 @@ namespace DocumentUploader.Controllers
             {
 
                 // Log create process started.
-                _logger.LogInformation(LoggingEvents.InsertItem, $"POST : Start. {user} uploading document.");
+                _logger.LogInformation(LoggingEvents.InsertItem, $"POST : Start v1.0 - {user} uploading document.");
 
                 // Initialize variables.
 
@@ -177,11 +177,11 @@ namespace DocumentUploader.Controllers
                     var jobId = Guid.NewGuid().ToString(); 
 
                     // Add to the Queue.
-                    var message = new QueueJobMessage(ConfigSettings.TABLE_PATITION_KEY, jobId, fileName, user);
+                    var message = new QueueJobMessage(ConfigSettings.TABLE_PARTITION_KEY, jobId, fileName, user);
                     await _queue.AddQueueMessage(message, null);
 
                     // (#) Instatiate TableProcessor but inject JobTable object.
-                    var tableProcessor = new TableProcessor(new JobTable(_logger, _configuration, ConfigSettings.TABLE_PATITION_KEY));
+                    var tableProcessor = new TableProcessor(new JobTable(_logger, _configuration, ConfigSettings.TABLE_PARTITION_KEY));
 
                     // Create record job status with status Queued.
                     await tableProcessor.CreateJobTableWithStatus(_logger, jobId, fileName, user);
@@ -270,6 +270,7 @@ namespace DocumentUploader.Controllers
         /// <remarks></remarks>    
 
         [ProducesResponseType(typeof(JobStatusResponse[]), (int)HttpStatusCode.OK)]     //200
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]   //400
         [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]     //404
         [HttpGet("job/{id}", Name = "RetrieveJobById")]
 
@@ -282,7 +283,7 @@ namespace DocumentUploader.Controllers
 
 
                 // ** REFACTORING is needed in case conversion mode is removed from the constructor.
-                var jobTable = new JobTable(_logger, _configuration, ConfigSettings.TABLE_PATITION_KEY);
+                var jobTable = new JobTable(_logger, _configuration, ConfigSettings.TABLE_PARTITION_KEY);
 
                 // Entity has the data returned from the storage table.
                 // var entity = await table.ExecuteQuerySegmentedAsync(jobStatusQuery, null);
@@ -330,207 +331,63 @@ namespace DocumentUploader.Controllers
         }
 
 
-        /*
-                /// <summary>
-                /// Gets the specified file based on the name (GUID).
-                /// </summary>
-                /// <param name="id">Name of the file</param>
-                /// <returns>
-                /// Ok - returns the file
-                /// Not Found - returns error reponse message.
-                /// </returns>
-                /// <remarks>
-                /// Demo Notes:
-                /// In case file is not found, returns 404 error.</remarks>
+        /// <summary>
+        /// Returns all Jobs in the storage table.
+        /// </summary>
+        /// <param name="userName">If user name is provided returns jobs uploaded by the user, if blank returns all jobs.</param>
+        /// <returns>Ok - List of jobs .
+        ///          Empty - No 
+        ///          BadRequest - Container not found or any other internal error.
+        /// </returns>
+        /// <remarks></remarks>    
 
-                [ProducesResponseType(typeof(Stream), (int)HttpStatusCode.OK)] //200
-                [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]   //404
-                [HttpGet("document/{id}")]
-                public async Task<ActionResult> Get(string id)
+        [ProducesResponseType(typeof(JobStatusResponse[]), (int)HttpStatusCode.OK)]     //200
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]     //404
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]   //400
+        [HttpGet("jobs/{userName?}")]
+
+        public async Task<IActionResult> RetrieveAllJobs(string userName = "")
+        {
+            try
+            {
+                _logger.LogInformation(LoggingEvents.GetItem, $"GET all jobs by user {userName}. Storage table {ConfigSettings.TABLE_JOBS_NAME}.");
+
+                // Initiate a list of JobStatusResponse
+                var jobStatusList = new List<JobStatusResponse>();
+                var jobStatus = new JobStatusResponse(new JobEntity());
+
+                // ** REFACTORING is needed -> Notice mode added, but we will return all records.
+                var jobTable = new JobTable(_logger, _configuration, ConfigSettings.TABLE_PARTITION_KEY);
+
+                foreach (JobEntity entity in await jobTable.RetrieveJobEntityAll(userName))
                 {
-                    string containerName = "";
-                    string fileName = "";
+                    jobStatus = new JobStatusResponse(entity);
 
-                    try
-                    {
-
-                        // Initialize variables.
-                        containerName = ConfigSettings.UPLOADED_CONTAINERNAME;
-                        fileName = id;
-
-                        // Log Get starts
-                        _logger.LogInformation(LoggingEvents.GetItem, $"GET : Starting process. File : {id} at Container : {containerName}.");
-
-
-                        // Validate data input
-                        ObjectResult objectResult = _storage.ValidateData(containerName, fileName);
-                        if (objectResult != null) return (BadRequestObjectResult)objectResult;
-
-                        // LOG data validation completed.
-                        _logger.LogInformation(LoggingEvents.InsertItem, $"GET : All paramenters are valid.");
-
-
-                        // Validate container and file existance.
-                        objectResult = _storage.ValidateExistance(containerName, fileName);
-                        if (objectResult != null) return (NotFoundObjectResult)objectResult;
-
-                        // LOG existance validation completed.
-                        _logger.LogInformation(LoggingEvents.InsertItem, $"GET : Container and file exist.");
-
-                        // validate if the file exists.
-                        if (!_storage.FileExist(containerName, fileName))
-                        {
-                            // File doesn't exist                
-                            return NotFound(ErrorLibrary.GetErrorResponse(((int)ApiErrorCode.EntityNotFound).ToString(), "fileName", fileName, null));
-                        }
-
-                        // Returns the file
-                        (MemoryStream memoryStream, string contentType) = await _storage.GetFileAsync(containerName, fileName);
-                        return File(memoryStream, contentType);
-
-                    }
-                    catch (Exception ex)
-                    {
-                        // Log an error.
-                        _logger.LogError(LoggingEvents.GetItem, $"GET Blob Unexpected error when returning {fileName} at container {containerName}.");
-
-                        // Data parameters to be passed to the handling error middleware.
-                        ex.Data["errorNumber"] = (int)ApiErrorCode.InternalError;
-                        ex.Data["paramName"] = "Not applicable";
-                        ex.Data["paramValue"] = "";
-
-                        // rethrow to the middleware.
-                        throw;
-
-                    }
-
-
+                    jobStatusList.Add(jobStatus);
                 }
 
+                // In case records weren't found, returns entity not found error.
+                if (jobStatusList.Count == 0) return new NotFoundObjectResult(ErrorLibrary.GetErrorResponse(((int)ApiErrorCode.EntityNotFound).ToString(), "user", userName, null));
+
+                return new ObjectResult(jobStatusList);
+
+            }
+            catch (Exception ex)
+            {
+                // Log an error.
+                _logger.LogError(LoggingEvents.GetItem, $"[+] Unexpected error when retrieving job status records. Storage table {ConfigSettings.TABLE_JOBS_NAME}.");
+
+                // Data parameters to be passed to the handling error middleware.
+                ex.Data["errorNumber"] = (int)ApiErrorCode.InternalError;
+                ex.Data["paramName"] = "Not applicable";
+                ex.Data["paramValue"] = "";
+
+                // rethrow to the middleware.
+                throw;
+            }
+        }
 
 
-                /// <summary>
-                /// Returns all blobs in the container.
-                /// </summary>
-                /// <returns>Ok - List of files (blobs).
-                ///          BadRequest - Container not found or any other internal error.
-                /// </returns>
-                /// <remarks></remarks>    
-
-                [ProducesResponseType(typeof(BlobNameResponse[]), (int)HttpStatusCode.OK)] //200
-                [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]  //400
-                [HttpGet("uploadedimages")]
-
-                public async Task<IActionResult> RetrieveAllBlobs()
-                {
-                    string containerName = "";
-
-                    try
-                    {
-
-                        // Initialize variables.
-                        containerName = ApiSettings.UPLOADED_CONTAINERNAME;
-
-                        // Log retrieve all starts
-                        _logger.LogInformation(LoggingEvents.GetItem, $"GET ALL Blobs : Starting process. Container : {containerName}.");
-
-
-                        // Validate data input
-                        ObjectResult objectResult = _storage.ValidateData(containerName);
-                        if (objectResult != null) return (BadRequestObjectResult)objectResult;
-
-                        // Validate container existance.
-                        objectResult = _storage.ValidateExistance(containerName);
-                        if (objectResult != null) return (NotFoundObjectResult)objectResult;
-
-                        // LOG existance validation completed.
-                        _logger.LogInformation(LoggingEvents.GetItem, $"GET ALL Blobs : Container exist.");
-
-
-                        // Retrieve Blobs
-                        var returnAllBlobs = new List<BlobNameResponse>();
-                        List<string> allBlobs = await _storage.GetListOfBlobs(containerName);
-
-                        // Loop Blobs to build the response.
-                        foreach (string b in allBlobs)
-                        {
-                            //r.name = b;    
-                            returnAllBlobs.Add(new BlobNameResponse { id = b });
-                        }
-
-                        return new ObjectResult(returnAllBlobs);
-
-                    }
-                    catch (Exception ex)
-                    {
-                        // Log an error.
-                        _logger.LogError(LoggingEvents.GetItem, $"Get All Blobs : Unexpected error when retrieving Blobs at container {containerName}.");
-
-                        // Data parameters to be passed to the handling error middleware.
-                        ex.Data["errorNumber"] = (int)ApiErrorCode.InternalError;
-                        ex.Data["paramName"] = "Not applicable";
-                        ex.Data["paramValue"] = "";
-
-                        // rethrow to the middleware.
-                        throw;
-                    }
-
-
-                }
-
-
-                /// <summary>
-                /// Returns all Jobs in the storage table (imageconversionjobs).
-                /// </summary>
-                /// <returns>Ok - List of files (blobs).
-                ///          BadRequest - Container not found or any other internal error.
-                /// </returns>
-                /// <remarks></remarks>    
-
-                [ProducesResponseType(typeof(JobStatusResponse[]), (int)HttpStatusCode.OK)] //200
-                [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]  //400
-                [HttpGet("jobs")]
-
-                public async Task<IActionResult> RetrieveAllJobs()
-                {
-                    try
-                    {
-                        _logger.LogInformation(LoggingEvents.GetItem, $"GET ALL Jobs : Storage table {ApiSettings.TABLE_JOBS_NAME}.");
-
-                        // Initiate a list of JobStatusResponse
-                        var jobStatusList = new List<JobStatusResponse>();
-                        var jobStatus = new JobStatusResponse(new JobEntity());
-
-                        // ** REFACTORING is needed -> Notice mode added, but we will return all records.
-                        var jobTable = new JobTable(_logger, _configuration, "1");
-
-                        foreach (JobEntity entity in await jobTable.RetrieveJobEntityAll())
-                        {
-                            jobStatus = new JobStatusResponse(entity);
-
-                            jobStatusList.Add(jobStatus);
-                        }
-
-                        return new ObjectResult(jobStatusList);
-
-                    }
-                    catch (Exception ex)
-                    {
-                        // Log an error.
-                        _logger.LogError(LoggingEvents.GetItem, $"Get ALL Jobs : Unexpected error when retrieving job status records. Storage table {ApiSettings.TABLE_JOBS_NAME}.");
-
-                        // Data parameters to be passed to the handling error middleware.
-                        ex.Data["errorNumber"] = (int)ApiErrorCode.InternalError;
-                        ex.Data["paramName"] = "Not applicable";
-                        ex.Data["paramValue"] = "";
-
-                        // rethrow to the middleware.
-                        throw;
-                    }
-                }
-        */
-
-
-
+  
     }
 }

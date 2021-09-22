@@ -34,7 +34,7 @@ namespace ConfigurationLibrary
         public const string TABLE_JOBS_NAME = "unistadjobs";
 
         // Name of the table used to store the job status
-        public const string TABLE_PATITION_KEY = "unistad";
+        public const string TABLE_PARTITION_KEY = "unistad";
 
 
 

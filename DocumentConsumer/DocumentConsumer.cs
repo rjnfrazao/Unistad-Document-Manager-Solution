@@ -48,6 +48,7 @@ namespace DocumentConsumer
                 var configuration = new ConfigurationBuilder()
                         .SetBasePath(context.FunctionAppDirectory)
                         .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
+                        .AddJsonFile("DictionaryMapping.settings.json", optional: true, reloadOnChange: true)
                         .AddUserSecrets("b57a545a-6af3-4a60-91c2-c2b435445f69")
                         .AddEnvironmentVariables()
                         .Build();
@@ -56,20 +57,12 @@ namespace DocumentConsumer
                 queueMessage = JsonConvert.DeserializeObject<QueueJobMessage>(myQueueItem);
 
                 // (#) Instatiate TableProcessor but inject JobTable object.
-                tableProcessor = new TableProcessor(new JobTable(log, configuration, ConfigSettings.TABLE_PATITION_KEY));
+                tableProcessor = new TableProcessor(new JobTable(log, configuration, ConfigSettings.TABLE_PARTITION_KEY));
 
                 // Folders where the files are located or stored.
                 uploadedFolder = ConfigSettings.FILE_SHARE_UPLOADED_FOLDER;
                 failedFolder = ConfigSettings.FILE_SHARE_FAILED_FOLDER;
                 targetRootFolder = ConfigSettings.FILE_SHARE_UNISTAD_FOLDER;
-
-                // Initialize variables required to move files.
-                uploadedFile = uploadedFolder + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + queueMessage.fileName;      // Uploaded file path
-
-                // [+] Destination failed file path. Added part of the GUID to avoid duplicatation when saving the failed file.
-                failedDocumentName = queueMessage.fileName.Substring(0, queueMessage.fileName.IndexOf("."));
-                failedDocumentName = failedDocumentName + "-" + queueMessage.jobId.Substring(queueMessage.jobId.Length - 5) + ".pdf";
-                failedFile = failedFolder + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + failedDocumentName;
 
 
                 // There are no FileShare in Azurite, so in development use FileSystem to store the files.
@@ -78,10 +71,10 @@ namespace DocumentConsumer
                     // Development use the file system.
                     fileShare = new StorageLibrary.Repositories.FileSystem(log, configuration);
 
-                    // Add the root folder location in the file system.
-                    uploadedFolder = configuration.GetValue<string>("DevelopmentFileSystemRoot") + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + uploadedFolder;
-                    failedFolder = configuration.GetValue<string>("DevelopmentFileSystemRoot") + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + failedFolder;
-                    targetRootFolder = configuration.GetValue<string>("DevelopmentFileSystemRoot") + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + targetRootFolder;
+                    // In case of development environment. Add the root folder location in the file system.
+                    uploadedFolder = Path.Combine(configuration.GetValue<string>("DevelopmentFileSystemRoot"),uploadedFolder);
+                    failedFolder = Path.Combine(configuration.GetValue<string>("DevelopmentFileSystemRoot"),failedFolder);
+                    targetRootFolder = Path.Combine(configuration.GetValue<string>("DevelopmentFileSystemRoot"), targetRootFolder); // removed  + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + 
 
                 }
                 else
@@ -90,6 +83,19 @@ namespace DocumentConsumer
                     fileShare = new StorageLibrary.Repositories.FileShare(log, configuration);
 
                 }
+
+
+
+                // Initialize variables required to move files.
+                uploadedFile = Path.Combine(uploadedFolder, queueMessage.fileName);      // Uploaded file path (removed  + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER +) 
+
+                // [+] Destination failed file path. Added part of the GUID to avoid duplicatation when saving the failed file.
+                failedDocumentName = queueMessage.fileName.Substring(0, queueMessage.fileName.IndexOf("."));
+                failedDocumentName = failedDocumentName + "-" + queueMessage.jobId.Substring(queueMessage.jobId.Length - 5) + ".pdf";
+                failedFile = Path.Combine(failedFolder, failedDocumentName);
+
+
+
 
 
 
@@ -150,8 +156,8 @@ namespace DocumentConsumer
                 documentName = $"{documentName}.pdf";
 
                 // Destination file path, in case conversion successfuly completed.
-                string destinationFolder = targetRootFolder + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + targetSubFolder;
-                string destinationFile = destinationFolder + ConfigSettings.FILE_SHARE_FOLDER_DELIMITER + documentName;
+                string destinationFolder = Path.Combine(targetRootFolder, targetSubFolder);
+                string destinationFile = Path.Combine(destinationFolder, documentName);
 
                 // In case not able to work out the destination folder or file name.
                 // The process fails. File is moved to failed folder

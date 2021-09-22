@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using StorageLibrary.DataTransferObjects;
 using StorageLibrary.Repositories;
 using Unistad_Document_Manager.Pages.Models;
+using Unistad_Document_Manager.Utils;
 
 namespace Unistad_Document_Manager.Pages.Upload
 {
@@ -40,12 +41,7 @@ namespace Unistad_Document_Manager.Pages.Upload
             uploadResultList = new List<UploadResult>();
 
             // Get the URI end point
-            // apiURI first check an environment variable configured at host, otherwise use the one from appsettings.json
-            apiURI = _configuration.GetValue<string>("APPSETTING_ApiConsumerUrl");
-            if (apiURI == "")
-            {
-                apiURI = _configuration.GetValue<string>("ApplicationSettings:ApiConsumerUrl");
-            }
+            apiURI = CommonFunctions.GetApiUrl(configuration);
 
         }
 
@@ -154,7 +150,7 @@ namespace Unistad_Document_Manager.Pages.Upload
                                     // Get the URI end point
 
                                     // set the http request
-                                    var request = new HttpRequestMessage(HttpMethod.Put, apiURI);
+                                    var request = new HttpRequestMessage(HttpMethod.Put, apiURI + "upload");
 
                                     // submit the request and wait for the response.
                                     response = await client.PostAsync(request.RequestUri, form);

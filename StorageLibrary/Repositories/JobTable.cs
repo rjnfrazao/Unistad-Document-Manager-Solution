@@ -8,6 +8,7 @@ using ConfigurationLibrary;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using StorageLibrary.Library;
+using System.Linq;
 
 namespace StorageLibrary.Repositories
 {
@@ -127,14 +128,22 @@ namespace StorageLibrary.Repositories
         /// <summary>
         /// Retrieve all records
         /// </summary>
+        /// <param name="userName">In case provided returns jobs uploaded by the user, otherwise returns all jobs.</param>
         /// <returns>List of JobEntity.</returns>
-        public async Task<List<JobEntity>> RetrieveJobEntityAll()
+        public async Task<List<JobEntity>> RetrieveJobEntityAll(string userName)
         {
 
             var entityList = new List<JobEntity>();
 
             // Construct the query operation for PartitionKey=_partitionKey.
             TableQuery<JobEntity> query = new TableQuery<JobEntity>();
+
+            // if userName was provided, add the filter per user.
+            if (userName != "")
+            {
+                query = query.Where(TableQuery.GenerateFilterCondition("user", QueryComparisons.Equal, userName));
+
+            }
 
             //TableContinuationToken token = new TableContinuationToken();
 

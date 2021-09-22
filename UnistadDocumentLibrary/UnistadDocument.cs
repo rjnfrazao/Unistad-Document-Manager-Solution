@@ -149,7 +149,7 @@ namespace UnistadDocumentLibrary
         /// <summary>
         /// Get the EDRMS reference number. This is the number used to uniquely identify the documents.
         /// It checks two patterns, first : "0.1", "0.2", where the digit after dot is the version or
-        /// second : " 1 10-JAN-21" or " 0 15-JUL-20" where the first version is the version.
+        /// second : " 1 10-JAN-21" or " 2 15-JUL-20" where the first number is the version.
         /// </summary>
         /// <returns>In case the EDRMS number exist, returns the EDRSM number, otherwise returns ""</returns>
         private string getVersion()
@@ -187,7 +187,7 @@ namespace UnistadDocumentLibrary
             // Second Check - In case first check failed, then try to find anything with space + digit + space + dd-MMM-yy, the first digit is the version.
  
             // expression to be found for the version number. Example " 1 10-JAN-21", the digit "1" is the version.
-            exp = new Regex("\\s\\d{1}\\s\\d{1,2}-\\w{3,4}-\\d{2,4}\\s");
+            exp = new Regex("\\d{1,2}\\s\\d{1,2}[-/]\\w{1,10}[-/]\\d{2,4}\\s");
 
             // Apply the regular expression in the Second page
             collection = exp.Matches(page);
