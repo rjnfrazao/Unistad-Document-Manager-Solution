@@ -1,4 +1,5 @@
 [
+  // List of values used to locate the EDRMS Reference Number
   {
     "name": "DICTIONARY_Edrms_0_value",
     "value": "SC-I60",
@@ -9,6 +10,8 @@
     "value": "SC-C05",
     "slotSetting": false
   },
+
+  // List of values used to initialize the data dictionary to map Stadium name to the Stadium Code
   {
     "name": "DICTIONARY_Stadium_0_name",
     "value": "Hub",
@@ -110,6 +113,8 @@
     "slotSetting": false
   },
 
+
+  // List of values used to initialize the data dictionary to map Service name to the Service Code
   {
     "name": "DICTIONARY_Service_0_name",
     "value": "National Command Center",
@@ -340,6 +345,8 @@
     "value": "IBMS",
     "slotSetting": false
   },
+
+  // List of values used to initialize the data dictionary to map Document Type name to the Document Type Code
   {
     "name": "DICTIONARY_DocumentType_0_name",
     "value": "Business Requirements",
@@ -460,6 +467,8 @@
     "value": "UAT",
     "slotSetting": false
   },
+
+  // List of values used to initialize the data dictionary to map Stadium Code to the Stadium Folder
   {
     "name": "DICTIONARY_StadiumFolder_0_name",
     "value": "HB",
@@ -550,6 +559,8 @@
     "value": "09. LS",
     "slotSetting": false
   },
+
+  // List of values used to initialize the data dictionary to map Service Code to the Service Package + Release Folder
   {
     "name": "DICTIONARY_ServiceFolder_0_name",
     "value": "IBMS CCTV ACS IPTV DS",
@@ -590,6 +601,8 @@
     "value": "Package 2",
     "slotSetting": false
   },
+
+  // List of values used to initialize the data dictionary to map Document Type Code to Milestone folder code, where the file will be stored.
   {
     "name": "DICTIONARY_DocumentFolder_0_name",
     "value": "PM DM",

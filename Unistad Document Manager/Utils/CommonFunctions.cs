@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Unistad_Document_Manager.utils
+namespace Unistad_Document_Manager.Utils
 {
-    public class Utils
+    public static class CommonFunctions
 
     {
         public static string GetApiUrl(IConfiguration configuration)

@@ -22,3 +22,4 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "DocumentUploader.dll", "--add-host host.docker.internal:host-gateway"]
+

@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 using StorageLibrary.DataTransferObjects;
 using StorageLibrary.Repositories;
 using Unistad_Document_Manager.Pages.Models;
-using Unistad_Document_Manager.utils;
+using Unistad_Document_Manager.Utils;
 
 namespace Unistad_Document_Manager.Pages.Upload
 {
@@ -41,7 +41,7 @@ namespace Unistad_Document_Manager.Pages.Upload
             uploadResultList = new List<UploadResult>();
 
             // Get the URI end point
-            apiURI = Utils.GetApiUrl(configuration);
+            apiURI = CommonFunctions.GetApiUrl(configuration);
 
         }
 

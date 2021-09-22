@@ -20,6 +20,9 @@
     <ProjectReference Include="..\UnistadDocumentLibrary\UnistadDocumentLibrary.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="DictionaryMapping.settings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -7,9 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
-using Unistad_Document_Manager.utils;
 using System.Threading.Tasks;
 using System.Text.Json;
+using Unistad_Document_Manager.Utils;
 
 namespace Unistad_Document_Manager.Pages
 {
@@ -29,14 +29,15 @@ namespace Unistad_Document_Manager.Pages
             _logger = logger;
 
             // Get the URI end point
-            apiURI = Utils.GetApiUrl(configuration);
+            apiURI = CommonFunctions.GetApiUrl(configuration);
 
-            jobStatusList = new List<JobEntity>();
+            jobStatusList = new List<JobEntityString>();
         }
 
 
+
         [BindProperty]
-        public IList<JobEntity> jobStatusList { get; set; }
+        public IList<JobEntityString> jobStatusList { get; set; }
 
         private string apiURI = "";
 
@@ -60,7 +61,11 @@ namespace Unistad_Document_Manager.Pages
                     {
                         using (var responseStream = await response.Content.ReadAsStreamAsync())
                         {
-                            jobStatusList = await JsonSerializer.DeserializeAsync<IList<JobEntity>>(responseStream);
+                            jobStatusList = await JsonSerializer.DeserializeAsync<IList<JobEntityString>>(responseStream);
+                            
+
+                            // Timestamp order by descending, so newest records are displayed on top. jobStatusList.OrderByDescending(r => r.Timestamp);
+                            jobStatusList = jobStatusList.OrderByDescending(r => r.timestamp).ToList();
                         }
                     }
                     else

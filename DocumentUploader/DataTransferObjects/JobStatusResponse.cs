@@ -1,5 +1,6 @@
 
 using StorageLibrary.Models;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
@@ -18,6 +19,7 @@ namespace DocumentUploader.DataTransferObjects
             fileSource = entity.fileSource;
             fileResult = entity.fileResult;
             user = entity.user;
+            Timestamp = entity.Timestamp.DateTime;
 
         }
 
@@ -39,6 +41,8 @@ namespace DocumentUploader.DataTransferObjects
 
         [MaxLength(512)]
         public string user { get; set; }
+
+        public DateTime Timestamp { get; set; }
 
     }
 }
