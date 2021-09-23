@@ -23,8 +23,8 @@ jobs:
       - run: echo "Document Manager Project - Docker compose running."
       - uses: actions/checkout@v2 
       
-      - name: Login to DockerHub
-        run: docker login -u $DOCKER_USER -p $DOCKER_ACCESS_TOKEN
+      #- name: Login to DockerHub
+      #  run: docker login -u $DOCKER_USER -p $DOCKER_ACCESS_TOKEN
       
       - name: Build the Docker image 
         #working-directory : Unistad-Document-Manager-Solution
