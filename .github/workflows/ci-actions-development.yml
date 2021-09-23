@@ -1,7 +1,7 @@
 name: Unistad Continuous Integration - Build
 on:
   push:
-    branches: [ $default-branch ]
+    branches: [ master ]
   pull_request:
     branches: [ master ]
 
