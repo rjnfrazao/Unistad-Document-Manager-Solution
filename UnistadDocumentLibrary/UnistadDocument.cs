@@ -33,7 +33,7 @@ namespace UnistadDocumentLibrary
         /// <param name="stadiumDictionary">Stadium mapping information.</param>
         /// <param name="serviceDictionary">Service mapping information.</param>
         /// <param name="documentDictionary">Document type mapping information.</param>
-        /// <param name="edrmsList">List of prefixes used in the EDRMS number to identify an UNISTAD document. </param>
+        /// <param name="edrmsList">List of prefixes used in the EDRMS number to identify an document. </param>
         /// <param name="targetStadiumFolder">Target stadium folder mapping information. </param>
         /// <param name="targetServiceFolder">Target service folder mapping information. </param>
         /// <param name="targetDocumentTypeFolder">Target document folder mapping information. </param>

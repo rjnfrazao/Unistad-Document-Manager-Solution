@@ -17,7 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ConfigurationLibrary\ConfigurationLibrary.csproj" />
     <ProjectReference Include="..\StorageLibrary\StorageLibrary.csproj" />
-    <ProjectReference Include="..\UnistadDocumentLibrary\UnistadDocumentLibrary.csproj" />
+    <ProjectReference Include="..\UnistadDocumentLibrary\DocumentLibrary.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="DictionaryMapping.settings.json">

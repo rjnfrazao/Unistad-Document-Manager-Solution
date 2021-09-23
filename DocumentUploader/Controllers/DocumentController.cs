@@ -332,6 +332,26 @@ namespace DocumentUploader.Controllers
 
 
         /// <summary>
+        /// Workarount to implement using Swagger the optional routing parameter. 
+        /// </summary>
+       /// <returns> Ok - List of all jobs .
+        ///          Empty - No 
+        ///          BadRequest - Container not found or any other internal error.
+        /// </returns>
+        /// <remarks></remarks>    
+
+        [ProducesResponseType(typeof(JobStatusResponse[]), (int)HttpStatusCode.OK)]     //200
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]     //404
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]   //400
+        [HttpGet("jobs/")]
+
+        public async Task<IActionResult> RetrieveAllJobs()
+        {
+            return await RetrieveAllJobs("");
+        }
+
+
+        /// <summary>
         /// Returns all Jobs in the storage table.
         /// </summary>
         /// <param name="userName">If user name is provided returns jobs uploaded by the user, if blank returns all jobs.</param>
@@ -344,7 +364,7 @@ namespace DocumentUploader.Controllers
         [ProducesResponseType(typeof(JobStatusResponse[]), (int)HttpStatusCode.OK)]     //200
         [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]     //404
         [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]   //400
-        [HttpGet("jobs/{userName?}")]
+        [HttpGet("jobs/{userName}")]
 
         public async Task<IActionResult> RetrieveAllJobs(string userName = "")
         {

@@ -107,7 +107,7 @@ namespace DocumentConsumer
                 Dictionary<string, string> serviceDir = Utils.Library.InitializeDictionary(configuration, "Service");
                 Dictionary<string, string> documentTypeDir = Utils.Library.InitializeDictionary(configuration, "DocumentType");
 
-                // Load the list of patterns used to identify a valid EDRMS number used by UNISTAD documents.    
+                // Load the list of patterns used to identify a valid EDRMS number used by documents.    
                 List<string> edrmsList = Utils.Library.InitializeList(configuration, "Edrms");
 
 
@@ -125,7 +125,7 @@ namespace DocumentConsumer
                 UnistadDocument unistadDoc = new UnistadDocument(stadiumDir, serviceDir, documentTypeDir, edrmsList,
                                                                 targetStadiumDir, targetServiceDir, targetDocumentDir);
  
-                log.LogInformation($"[+] File share and Unistad Document instatiated completed.");
+                log.LogInformation($"[+] File share and Document instatiated completed.");
 
 
                 // Start process to workout file name and folder.

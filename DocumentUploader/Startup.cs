@@ -112,9 +112,9 @@ namespace DocumentUploader
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    Title = "UNISTAD Document Uploader API",
+                    Title = "Document Uploader API",
                     Version = "v1",
-                    Description = "UNISTAD document uploader application. These API allows to upload files to be organized into Storage File folders.",
+                    Description = "Document uploader application. These API allows to upload files to be organized into Storage File folders.",
                     TermsOfService = new Uri("http://www.fluminense.com.br"),
                     Contact = new OpenApiContact
                     {
@@ -160,7 +160,7 @@ namespace DocumentUploader
             //       specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "UNISTAD Document Manager v1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Document Manager v1");
 
                 // Serve the Swagger UI at the app's root (http://localhost:<port>)
                 c.RoutePrefix = string.Empty;

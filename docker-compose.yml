@@ -1,6 +1,26 @@
 version: '3.5'
 
 services:
+  unistaddocumentmanager:
+    image: ${DOCKER_REGISTRY-}unistaddocumentmanager
+    container_name: DocumentManagerApp
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Test
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_HTTPS_PORT=44349   
+      # Do not create development certificate in an environment that will be distributed.
+      #- DOTNET_GENERATE_ASPNET_CERTIFICATE=false
+    networks:
+      - doc_manager
+    ports:
+      - "51218:80"
+      - "44349:443"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets/:/root/.microsoft/usersecrets
+      - ${APPDATA}/ASP.NET/Https/:/root/.aspnet/https/
+    build:
+      context: .
+      dockerfile: Unistad Document Manager/Dockerfile
   documentuploader:
     image: ${DOCKER_REGISTRY-}documentuploader
     container_name: DocumentUpoaderAPI
@@ -23,26 +43,6 @@ services:
       context: .
       dockerfile: DocumentUploader/Dockerfile
 
-  unistaddocumentmanager:
-    image: ${DOCKER_REGISTRY-}unistaddocumentmanager
-    container_name: DocumentManagerApp
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Test
-      - ASPNETCORE_URLS=https://+:443;http://+:80
-      - ASPNETCORE_HTTPS_PORT=44349   
-      # Do not create development certificate in an environment that will be distributed.
-      #- DOTNET_GENERATE_ASPNET_CERTIFICATE=false
-    networks:
-      - doc_manager
-    ports:
-      - "51218:80"
-      - "44349:443"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets/:/root/.microsoft/usersecrets
-      - ${APPDATA}/ASP.NET/Https/:/root/.aspnet/https/
-    build:
-      context: .
-      dockerfile: Unistad Document Manager/Dockerfile
 
 networks:
   doc_manager:
