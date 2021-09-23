@@ -20,7 +20,7 @@ jobs:
       - name: Build the Docker image 
         working-directory : Unistad Document Manager
         #run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
-        run: docker compose up
+        run: docker-compose up
       - run: echo "Docker compose completed."
   
   Explore-GitHub-Actions:
