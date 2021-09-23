@@ -15,9 +15,6 @@ services:
     ports:
       - "51218:80"
       - "44349:443"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets/:/root/.microsoft/usersecrets
-      - ${APPDATA}/ASP.NET/Https/:/root/.aspnet/https/
     build:
       context: .
       dockerfile: Unistad Document Manager/Dockerfile
@@ -35,9 +32,6 @@ services:
     ports:
       - "51217:80"
       #- "44335:443" [BRING BACK WHEN HTTPS CERTIFICATE IS SORTED OUT.]
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets/:/root/.microsoft/usersecrets
-      - ${APPDATA}/ASP.NET/Https/:/root/.aspnet/https/
     build:
       context: .
       dockerfile: DocumentUploader/Dockerfile
