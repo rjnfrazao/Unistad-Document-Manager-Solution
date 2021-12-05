@@ -83,6 +83,7 @@ namespace DocumentUploader
                 app.UseDeveloperExceptionPage();
             }
 
+
             app.UseExceptionHandlerMiddleware();
 
             // Setup Swagger 
@@ -115,7 +116,7 @@ namespace DocumentUploader
                     Title = "Document Uploader API",
                     Version = "v1",
                     Description = "Document uploader application. These API allows to upload files to be organized into Storage File folders.",
-                    TermsOfService = new Uri("http://www.fluminense.com.br"),
+                    TermsOfService = new Uri("http://www.intaleq.qa"),
                     Contact = new OpenApiContact
                     {
                         Name = "Ricardo Frazao",
@@ -123,6 +124,9 @@ namespace DocumentUploader
                     },
 
                 });
+
+                // Added to solve an issue of fetch error.
+                c.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
 
                 // #E-94 Tip: Added based on instructions in class.
                 // Use method name as operationId so that ADD REST Client... will work
@@ -160,7 +164,7 @@ namespace DocumentUploader
             //       specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Document Manager v1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Document Manager v1"); // was before /swagger/v1/swagger.json
 
                 // Serve the Swagger UI at the app's root (http://localhost:<port>)
                 c.RoutePrefix = string.Empty;

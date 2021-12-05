@@ -4,6 +4,7 @@ using ConfigurationLibrary;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -238,6 +239,23 @@ namespace StorageLibrary.Repositories
                 _log.LogError($"Error deleting the file {fileName} at the {directory}. [Error:251 ] ");
                 throw; 
             }
+        }
+
+
+        /// <summary>
+        /// NOT YET IMPLEMENTED TO THE FILE SYSTEMS.
+        /// </summary>
+        /// <param name="directory">Root folder</param>
+        /// <param name="stadium">Stadium code, in case blank doesn't filted</param>
+        /// <returns>List of directories and files.</returns>
+        public async Task<List<ShareFileItem>> GetDirectoriesAndFiles(string directory, string stadium)
+        {
+
+            // Avoid warning message
+            await Task.FromResult(0);
+
+            return null;
+
         }
 
     }

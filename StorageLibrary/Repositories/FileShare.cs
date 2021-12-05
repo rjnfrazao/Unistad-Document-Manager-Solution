@@ -1,9 +1,11 @@
-﻿using Azure.Storage.Files.Shares;
+﻿using Azure;
+using Azure.Storage.Files.Shares;
 using Azure.Storage.Files.Shares.Models;
 using ConfigurationLibrary;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -44,12 +46,14 @@ namespace StorageLibrary.Repositories
         private async Task<bool> InitializeFileShare()
         {
 
+            _log.LogInformation($"Inititalize File Share.");
             // Create the share if it doesn't already exist
             await _shareClient.CreateIfNotExistsAsync();
 
             // Ensure that the share exists
             if (await _shareClient.ExistsAsync())
             {
+                _log.LogInformation($"File share initialized.");
                 return true;
             }
             else
@@ -64,6 +68,8 @@ namespace StorageLibrary.Repositories
         private async Task CreateRecursiveIfNotExists(ShareDirectoryClient directory)
         {
 
+            _log.LogInformation($"File share : CreateRecursiveIfNotExists.");
+
             string GetParentDirectory(string path)
             {
                 string parent = "";
@@ -77,7 +83,9 @@ namespace StorageLibrary.Repositories
                     
                     parent = parent + add_delimiter + nestedFolderArray[i];
                 }
- 
+
+                _log.LogInformation($"File share : Return parent : {parent}");
+
                 return parent;
             }
 
@@ -113,6 +121,8 @@ namespace StorageLibrary.Repositories
                 // Ensure that the directory exists
                 if (await directoryClient.ExistsAsync())
                 {
+
+                    _log.LogInformation($"Directory client initialized {directory}");
                     // Returns directory client.
                     return directoryClient;
                 }
@@ -280,6 +290,7 @@ namespace StorageLibrary.Repositories
         public async Task<bool> SaveFileUploaded(string directory, string file, Stream fileStream)
 
         {
+            _log.LogInformation($"File Share : Saving file uploaded started. Dir: {directory} , File: {file}.");
 
             // Get a reference to the directory
             ShareDirectoryClient directoryClient = await GetDirectoryClient(directory);
@@ -287,8 +298,11 @@ namespace StorageLibrary.Repositories
             // Check the client exists
             if (directoryClient != null)
             {
+
                 // Get a reference to a file object
                 ShareFileClient destFileCLient = directoryClient.GetFileClient(file);
+
+                _log.LogInformation($"File Share : File Client created.");
 
                 // if the file doesn't exist. Create one before the upload.
                 if (! await destFileCLient.ExistsAsync())
@@ -385,6 +399,44 @@ namespace StorageLibrary.Repositories
 
             // Avoid warning message
             await Task.FromResult(0);
+
+        }
+
+
+
+        /// <summary>
+        /// Returns all directories and files from the root folder.
+        /// </summary>
+        /// <param name="directory">Root folder</param>
+        /// <param name="stadium">Stadium code, in case blank doesn't filted</param>
+        /// <returns>List of directories and files.</returns>
+        public async Task<List<ShareFileItem>> GetDirectoriesAndFiles(string directory, string stadium)
+        {
+
+            // Get a reference to the directory
+            ShareDirectoryClient directoryClient = _shareClient.GetDirectoryClient(directory);
+
+            // Check the client exists
+            if (directoryClient != null)
+            {
+                // return pageable list of directories and files.
+                AsyncPageable<ShareFileItem> PageableDirectories = directoryClient.GetFilesAndDirectoriesAsync(stadium);
+
+                List<ShareFileItem> files = new List<ShareFileItem>();
+
+                //IAsyncEnumerator<ShareFileItem> enumerator = PageableDirectories.GetAsyncEnumerator();
+                await foreach (ShareFileItem file in PageableDirectories)
+                {
+                    files.Add(file);
+                }
+
+                return files;
+
+            }
+            else
+            {
+                return null;
+            }
 
         }
 

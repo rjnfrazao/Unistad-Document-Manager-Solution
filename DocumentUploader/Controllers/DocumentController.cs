@@ -17,6 +17,7 @@ using DocumentUploader.Exceptions;
 using DocumentUploader.DataTransferObjects;
 using StorageLibrary;
 using ConfigurationLibrary;
+using Azure.Storage.Files.Shares.Models;
 
 namespace DocumentUploader.Controllers
 {
@@ -408,6 +409,69 @@ namespace DocumentUploader.Controllers
         }
 
 
-  
+        /// <summary>
+        /// Search the documents based on Stadium, Service, Document Type.
+        /// </summary>
+        /// <param name="userName">Name of the user performing the search.</param>
+        /// <param name="Stadium">Stadium Code</param>
+        /// <param name="Service">Service Code</param>
+        /// <param name="Milestone">Milestone num</param>
+        /// <param name="Document">Document Type Code</param>
+        /// <returns>Ok - List of jobs .
+        ///          Empty - No 
+        ///          BadRequest - Container not found or any other internal error.
+        /// </returns>
+        /// <remarks></remarks>    
+
+        [ProducesResponseType(typeof(JobStatusResponse[]), (int)HttpStatusCode.OK)]     //200
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]     //404
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]   //400
+        [HttpGet("search/{Stadium}/{Service}/{Milestone}/{Document}")]
+
+        public async Task<IActionResult> SearchDocuments(string userName, string Stadium, string Service, int Milestone, string Document)
+        {
+            try
+            {
+                _logger.LogInformation(LoggingEvents.GetItem, $"Search Documents by user {userName}. Criteria : Stadium {Stadium} | Service {Service} | Milestone {Milestone} | Document Type {Document}");
+
+                // List of files
+                var files = new List<ShareFileItem>();
+
+                files = await _fileShare.GetDirectoriesAndFiles("","");
+
+                List<FileResponse> FileResponseList = new List<FileResponse>();
+
+                foreach (ShareFileItem file in files)
+                {
+
+                    if (!file.IsDirectory)
+                    {
+                        FileResponse item = new FileResponse(file);
+                        FileResponseList.Add(item);
+                    }
+                }
+
+                // In case records weren't found, returns entity not found error.
+                if (FileResponseList.Count == 0) return new NotFoundObjectResult(ErrorLibrary.GetErrorResponse(((int)ApiErrorCode.EntityNotFound).ToString(), "user", userName, null));
+
+                return new ObjectResult(FileResponseList);
+
+            }
+            catch (Exception ex)
+            {
+                // Log an error.
+                _logger.LogError(LoggingEvents.GetItem, $"[+] Unexpected error when retrieving job status records. Storage table {ConfigSettings.TABLE_JOBS_NAME}.");
+
+                // Data parameters to be passed to the handling error middleware.
+                ex.Data["errorNumber"] = (int)ApiErrorCode.InternalError;
+                ex.Data["paramName"] = "Not applicable";
+                ex.Data["paramValue"] = "";
+
+                // rethrow to the middleware.
+                throw;
+            }
+        }
+
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Azure.Storage.Files.Shares.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,5 +22,7 @@ namespace StorageLibrary.Repositories
         Task<Stream> GetFile(string directory, string fileName);
 
         Task DeleteFile(string directory, string fileName);
+
+        Task<List<ShareFileItem>> GetDirectoriesAndFiles(string directory, string stadium);
     }
 }

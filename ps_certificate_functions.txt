@@ -1,0 +1,49 @@
+#Scripts created by Lambros Vasiliou at https://spandothers.wordpress.com/2018/02/20/generating-a-root-ca-certificate-and-signed-certificates-for-dev-using-powershell/
+
+# Those two functions need to be paste into Poweshell, once loaded, you can run the commands in the file
+# ps_certificate_commands.txt
+
+function GenerateRootCA([string] $RootCaName = "Dev Root Authority", [SecureString] $Password, [string] $PfxPath = "rootca.pfx", [string] $CrtPath = "rootca.crt", [bool] $import=$false) {
+
+$rootCA=New-SelfSignedCertificate `
+ -certstorelocation cert:\currentuser\my `
+ -dnsname $RootCaName `
+ -notafter "2050-01-01" `
+ -keyusage CertSign,CRLSign `
+ -textextension @("2.5.29.37={text}1.3.6.1.5.5.7.3.2,1.3.6.1.5.5.7.3.1,1.3.6.1.5.5.7.3.4,1.3.6.1.5.5.7.3.3,1.3.6.1.5.5.7.3.8,1.3.6.1.5.5.7.3.1","2.5.29.19={critical}{text}ca=TRUE")
+ 
+ $certPath ="cert:\currentuser\my\" + $rootCA.Thumbprint 
+ $null = Export-PfxCertificate -cert $certPath -FilePath $PfxPath -Password $Password
+ $null = Export-Certificate -Cert $certPath -FilePath $CrtPath
+ if($import -eq $true) {
+ $null = Import-PfxCertificate -FilePath $PfxPath -CertStoreLocation Cert:\LocalMachine\Root -Confirm:$false -Password $Password
+ }
+
+$certPath
+}
+
+function GenerateCASignedCert([string] $RootCAPath, [string[]] $DomainDns, [SecureString] $Password, [string] $PfxPath = "", [string] $CrtPath = "", [bool] $import=$false, [string] $friendlyName="") {
+
+if ($PfxPath -eq "") { $PfxPath = "$DomainDns.pfx" }
+ if ($CrtPath -eq "") { $CrtPath = "$DomainDns.cer" }
+ if ($friendlyName -eq "") { $friendlyName = $DomainDns[0] }
+ 
+ $rootcert = (Get-ChildItem -Path $RootCAPath)
+ $cert = New-SelfSignedCertificate `
+ -certstorelocation cert:\currentuser\my `
+ -dnsname $DomainDns `
+ -Signer $rootcert `
+ -notafter "2050-01-01" `
+ -keyusage KeyEncipherment,DataEncipherment `
+ -textextension @("2.5.29.37={text}1.3.6.1.5.5.7.3.1") `
+ -friendlyName $friendlyName
+ 
+ $certPath = "cert:\currentuser\my\" + $cert.Thumbprint
+ $null = Export-PfxCertificate -cert $certPath -FilePath $PfxPath -Password $Password -InformationAction SilentlyContinue
+ $null = Export-Certificate -Cert $certPath -FilePath $CrtPath -InformationAction SilentlyContinue
+
+if($import -eq $true) {
+ $null = Import-PfxCertificate -FilePath $PfxPath -CertStoreLocation Cert:\LocalMachine\My -Confirm:$false -Password $Password
+ }
+ $certPath
+}

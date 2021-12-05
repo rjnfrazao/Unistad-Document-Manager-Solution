@@ -1,0 +1,10 @@
+#Scripts created by Lambros Vasiliou at https://spandothers.wordpress.com/2018/02/20/generating-a-root-ca-certificate-and-signed-certificates-for-dev-using-powershell/
+
+#Generate secure string password - change the password here
+$pwd = ConvertTo-SecureString "tellno1" -AsPlainText -Force
+
+#Generate Root CA - You can change the Root Certificate Name
+$rootCa = GenerateRootCA -Password $pwd -RootCaName "Dev Root CA" -PfxPath "DevRootCA.pfx" -CrtPath "DevRootCA.cer" -Import $true
+
+#Generate Certificate for localhost
+GenerateCASignedCert -RootCAPath $rootCa -FriendlyName "localhost" -DomainDns "localhost,*.localhost.com" -Password $pwd -Import $true -CrtPath "localhost.cer" -PfxPath "localhost.pfx"

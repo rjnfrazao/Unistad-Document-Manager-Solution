@@ -106,7 +106,9 @@ namespace UnistadDocumentLibrary
                 // if current key exists in the path name (no case sensitive comparison)
                 if (page.Contains(entry.Key.ToUpper()))
                 {
-                    value = value + "-" + entry.Value;
+                    // Correction added on 22-11-21, this if avoid to add the service code again, because services can be returned
+                    // several times due to configuration neded to find the Service Name.
+                    if (!value.Contains(entry.Value)) value = value + "-" + entry.Value;
 
                     if (firstOccurrency) break;     // If first occurrency is flagged, exit the loop.
                 }

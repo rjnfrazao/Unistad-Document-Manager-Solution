@@ -1,0 +1,38 @@
+﻿@page
+@model Unistad_Document_Manager.Pages.Upload.LogModel
+@{
+    ViewData["Title"] = "Log page";
+}
+
+<div class="text-center">
+    <p></p>
+    <h1 class="display-2">Log Upload Files</h1>
+</div>
+<div></div>
+<div class="container-fluid">
+
+    @if (Model.jobStatusList.Count > 0)
+    {
+        @foreach (var item in Model.jobStatusList)
+        {
+            <div class="row">
+                <div class="col col-1">
+                    @item.timestamp
+                </div>
+                <div class="col col-1">
+                    @item.user
+                </div>
+                <div class="col col-4">
+                    From: @item.fileSource<br>
+                    To: @item.fileResult
+                </div>
+                <div class="col col-4">
+                    @item.statusDescription
+                </div>
+                <div class="col col-2">
+                    @item.RowKey
+                </div>
+            </div>
+        }
+    }
+</div>

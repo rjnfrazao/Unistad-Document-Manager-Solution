@@ -16,6 +16,7 @@ using System.IO;
 using UnistadDocumentLibrary;
 using UnistadDocumentLibrary.Exceptions;
 using StorageLibrary.Library;
+using Microsoft.Azure.WebJobs.Extensions.Http;
 
 namespace DocumentConsumer
 {
