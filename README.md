@@ -2,11 +2,13 @@
 Application to automate the process to upload, archive and file naming.
 
 # What the application does
-Application is used to upload pdf documents from a project, based on some key elements in the document, the application archive the uploaded document into the right folder using the right naming convention for the files. The key elemts the application scans into the pdf document are project name, document type, service name, version number, and document reference number. All these elements are stored into the pages one and two.
+Application is used to upload pdf documents from a project, based on some key elements in the document, the application archive the uploaded document into the right folder using the right naming convention for the files. The key elements in the pdf document are client name, document type, service name, version number, and document reference number. All these elements are found in the pages one and two.
 
 # Application Architecture
 
-Application architecture was designed using the event driven approach, where there is a separation between the proccess of upload the files, and the process to archive the files.
+Application architecture was designed based on the Microservices pattern, where there is a separation between the several components of the solution. The separation of concerns was on high level : Front End (Service to implement the user front end), Web APIs (Service to create the job), and Functional App (Service to process the job). The level of fragmentation could be much higher but this was just the first step.
+
+Another architecture pattern applied was the Event Driven approach, as it was separated the document upload process from the document consuming process, the message queue event was the trigger between both process. This approach for example could allow in high intensive usage allow to escale up the Upload process (Web APIs) independentily of the Consuming process (Functional App). 
 
 ![Document Manager Architecture](https://github.com/rjnfrazao/Unistad-Document-Manager-Solution/blob/master/Doc%20Manager%20Architecture.JPG?raw=true)
 
@@ -37,4 +39,9 @@ Application architecture was designed using the event driven approach, where the
 
 # More technical details of the applicaion
 - The application keeps a data mapping file with all configuration required to define the destination folder and file name to be used when the document is archived, based on the key elements found in the file.
+- The application was designed based on the Microservices design.
 
+# Future Improvements
+- Implement Containers using Docker. I started, however I was struglling on activate the SSL certificate in the Kestrel Web Service inside the container image.
+- Implement automated tests.
+- Implement CI/CD.
