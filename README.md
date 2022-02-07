@@ -8,7 +8,7 @@ Application is used to upload pdf documents from a project, based on some key el
 
 Application architecture was designed based on the Microservices pattern, where there is a separation between the several components of the solution. The separation of concerns was on high level : Front End (Service to implement the user front end), Web APIs (Service to create the job), and Functional App (Service to process the job). The level of fragmentation could be much higher but this was just the first step.
 
-Another architecture pattern applied was the Event Driven approach, as it was separated the document upload process from the document consuming process, the message queue event was the trigger between both process. This approach for example could allow in high intensive usage allow to escale up the Upload process (Web APIs) independentily of the Consuming process (Functional App). 
+Another architecture pattern applied was the Event Driven approach, as it was separated the document upload process from the document consuming process, a new message queue event is the trigger between both process. This approach for example could allow in high intensive usage allow to escale up the Upload process (Web APIs) independentily of the Consuming process (Functional App). 
 
 ![Document Manager Architecture](https://github.com/rjnfrazao/Unistad-Document-Manager-Solution/blob/master/Doc%20Manager%20Architecture.JPG?raw=true)
 
